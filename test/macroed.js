@@ -63,4 +63,29 @@ describe('Macroed.prototype.expand', function () {
         m.expand('{{test(a=42,b=146)}}');
     });
 
+    it('Should support parenthesis omitting', function () {
+        var m = new Macroed();
+
+        m.register('smile', function (params) {
+            assert.isObject(params);
+
+            return ':)';
+        });
+
+        assert.strictEqual(m.expand('This is a smile {{smile}}!'),
+            'This is a smile :)!');
+    });
+
+    it('Should support "-" in macro names', function () {
+        var m = new Macroed();
+
+        m.register('macro-like', function (params) {
+
+            return '+' + params.plus;
+        });
+
+        assert.strictEqual(m.expand('{{macro-like(plus=1)}} for me'),
+            '+1 for me');
+    });
+
 });

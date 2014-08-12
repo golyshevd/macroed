@@ -1,6 +1,6 @@
 'use strict';
 
-var R_MACRO = /\{\{(\w+)\s*\(([^()]*)\)\s*(?:\{([\s\S]*)\}\s*)?\}\}/g;
+var R_MACRO = /\{\{([\w-]+)(?:\s*\(([^()]*)\))?(?:\s*\{([\s\S]*)\}\s*)?\}\}/g;
 
 var _ = require('lodash-node');
 var inherit = require('inherit');
