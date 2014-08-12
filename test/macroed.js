@@ -1,0 +1,55 @@
+/*global describe, it*/
+'use strict';
+
+var Macroed = require('../macroed');
+var assert = require('chai').assert;
+
+describe('Macroed.prototype.expand', function () {
+
+    it('Should expand simple macro', function () {
+        var m = new Macroed();
+
+        m.register('smile', function () {
+
+            return ':)';
+        });
+
+        m.register('wrap', function () {
+            return '(%s)';
+        });
+
+        assert.strictEqual(m.expand('{{smile()}}'), ':)');
+        assert.strictEqual(m.expand('{{smile () {} }}'), ':)');
+
+        assert.strictEqual(m.expand('{{wrap () {\n{{smile(){}}}\n}}}'),
+            '(\n:)\n)');
+    });
+
+    it('Should support macro generation', function () {
+        var m = new Macroed();
+
+        m.register('widget', function () {
+
+            return '{{wrap(){ {{smile()}} }}}';
+        });
+
+        m.register('wrap', function () {
+
+            return '< %s >';
+        });
+
+        m.register('smile', function () {
+
+            return ':)';
+        });
+
+        assert.strictEqual(m.expand('{{widget()}}'), '<  :)  >');
+    });
+
+    it('Should ignore not undefined macros', function () {
+        var m = new Macroed();
+
+        assert.strictEqual(m.expand('{{undef(){ :) }}}'), ' :) ');
+    });
+
+});

@@ -1,0 +1,40 @@
+{
+    "author": {
+        "name": "Golyshev Dmitrii",
+        "email": "golyshev.dmitry@yandex.ru"
+    },
+    "bugs": {
+        "url": "https://github.com/golyshevd/macroed/issues"
+    },
+    "contributors": [
+        "Golyshev Dmitrii <golyshev.dmitry@yandex.ru>"
+    ],
+    "dependencies": {
+        "inherit": "2.2.2",
+        "lodash-node": "2.4.1"
+    },
+    "description": "expand text macros like a boss",
+    "devDependencies": {
+        "glob": "4.0.5",
+        "gulp": "3.8.7",
+        "gulp-mocha": "0.5.2",
+        "gulp-istanbul": "0.2.1",
+        "gulp-eslint": "0.1.8",
+        "gulp-util": "3.0.0",
+        "through2": "0.5.1",
+        "minimatch": "1.0.0",
+        "gulp-jscs": "1.1.0",
+        "chai": "1.9.1"
+    },
+    "license": "MIT",
+    "main": "macroed",
+    "name": "macroed",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/golyshevd/macroed.git"
+    },
+    "engines": {
+        "node": ">= 0.10.0"
+    },
+    "version": "0.0.0"
+}
