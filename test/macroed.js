@@ -52,4 +52,15 @@ describe('Macroed.prototype.expand', function () {
         assert.strictEqual(m.expand('{{undef(){ :) }}}'), ' :) ');
     });
 
+    it('Should support params', function (done) {
+        var m = new Macroed();
+
+        m.register('test', function (params) {
+            assert.deepEqual(params, {a: '42', b: '146'});
+            done();
+        });
+
+        m.expand('{{test(a=42,b=146)}}');
+    });
+
 });
