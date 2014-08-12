@@ -9,20 +9,23 @@ Usage
 var Macroed = require('macroed');
 var macroed = new Macroed();
 
+//  just like inline macros
 macroed.register('smile', function () {
   
     return ':)';
 });
 
-macroed.expand('{{smile()}}'); // -> ':)'
+macroed.expand('Hello {{smile()}}'); // -> 'Hello :)'
 
-macroed.register('wrapper', function () {
+//  block macros
+macroed.register('greet', function () {
 
-    return 'This is a %s!';
+    return 'Hello, %s!';
 });
 
-macroed.expand('{{wrapper() {\n{{smile()}}\n}}}'); // -> This is a :)!
+macroed.expand('{{greet() {{golyshevd {smile()}}}}}'); // -> Hello, golyshevd :)!
 
+//  macros supports params
 macroed.register('params-demo', function (params) {
     assert.deepEqual(params, {a: '42', b: '146'});
 });
@@ -30,13 +33,25 @@ macroed.register('params-demo', function (params) {
 macroed.expand('{{params-demo(a=42,b=146)}}');
 
 //  macros can generate.... macros
-
 macroed.register('widget', function () {
     
-    return '{{wrapper(){\n{{smile()}}\n}}}';
+    return '{{greet(){golyshevd {{smile()}}}}}';
 });
 
-macroed.expand('{{widget()}}'); // -> This is a :)!
+macroed.expand('{{widget()}}'); // -> Hello, golyshevd :)!
+
+// macroed easy to use with other processors
+var marked = require('marked');
+
+macroed.register('wrapper', function (params) {
+  
+    return '<div id="' + params.id + '" class="my-wrapper">%s</div>';
+});
+
+var markdown = macroed.expand('{{wrapper(id=42)}{[Yandex](http://www.yandex.ru)}}');
+
+marked(markdown); // <div id="42" class="my-wrapper"><a href="http://www.yandex.ru">Yandex</a></div>
+
 ```
 
 License
