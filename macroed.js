@@ -1,6 +1,13 @@
 'use strict';
 
-var R_MACRO = /\{\{([\w-]+)(?:\s*\(([^()]*)\))?(?:\s*\{([\s\S]*)\}\s*)?\}\}/g;
+var R_MACRO = new RegExp('\\{\\{' +
+    // macro name
+'([\\w-]+)' +
+    // possible call params
+'((?:\\s*\\(([^()]*)\\))?)' +
+    // possible macro body
+'(?:(\\s*\\{)([\\s\\S]*)(\\}\\s*))?' +
+'\\}\\}', 'g');
 
 var _ = require('lodash-node');
 var inherit = require('inherit');
@@ -37,6 +44,14 @@ var Macroed = inherit(/** @lends Macroed.prototype */ {
          * @type {Object}
          * */
         this.__macros = {};
+
+        /**
+         * @private
+         * @memberOf {Macroed}
+         * @property
+         * @type {Function}
+         * */
+        this.__replacer = _.bind(this.__expander, this);
     },
 
     /**
@@ -49,7 +64,6 @@ var Macroed = inherit(/** @lends Macroed.prototype */ {
      * @returns {String}
      * */
     expand: function (s) {
-        var self = this;
 
         if ( _.isUndefined(s) || _.isNull(s) ) {
 
@@ -58,21 +72,7 @@ var Macroed = inherit(/** @lends Macroed.prototype */ {
 
         s = String(s);
 
-        return s.replace(R_MACRO, function ($0, name, params, contents) {
-            var macro = self.__macros[name];
-            var wrapper;
-
-            contents = self.expand(contents);
-
-            if ( _.isFunction(macro) ) {
-                params = self._parseMacroParams(params);
-                wrapper = self.__callMacro(macro, params);
-
-                contents = wrapper.replace(/%s/g, contents);
-            }
-
-            return contents;
-        });
+        return s.replace(R_MACRO, this.__replacer);
     },
 
     /**
@@ -127,6 +127,33 @@ var Macroed = inherit(/** @lends Macroed.prototype */ {
         } while ( result !== wrapper );
 
         return wrapper;
+    },
+
+    /**
+     * @private
+     * @memberOf {Macroed}
+     * @method
+     *
+     * @returns {String}
+     * */
+    __expander: function ($0, name, $call, params, $bc, contents, $ac) {
+        /*eslint max-params: 0*/
+        var macro = this.__macros[name];
+        var wrapper;
+
+        contents = this.expand(contents);
+
+        if ( _.isFunction(macro) ) {
+            params = this._parseMacroParams(params);
+            wrapper = this.__callMacro(macro, params);
+
+            return wrapper.replace(/%s/g, contents);
+        }
+
+        //  macro is not supported
+        //  it should save macro syntax
+        return '{{' + name + $call + ($bc || '') +
+        contents + ($ac || '') + '}}';
     }
 
 });

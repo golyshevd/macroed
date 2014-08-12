@@ -46,10 +46,18 @@ describe('Macroed.prototype.expand', function () {
         assert.strictEqual(m.expand('{{widget()}}'), '<  :)  >');
     });
 
-    it('Should ignore not undefined macros', function () {
+    it('Should save not defined macros', function () {
         var m = new Macroed();
 
-        assert.strictEqual(m.expand('{{undef(){ :) }}}'), ' :) ');
+        m.register('poo', function () {
+
+            return '!';
+        });
+
+        assert.strictEqual(m.expand('{{undef()}}'), '{{undef()}}');
+        assert.strictEqual(m.expand('{{undef(){ :) }}}'), '{{undef(){ :) }}}');
+        assert.strictEqual(m.expand('{{undef () { {{poo()}} }}}'),
+            '{{undef () { ! }}}');
     });
 
     it('Should support params', function (done) {
