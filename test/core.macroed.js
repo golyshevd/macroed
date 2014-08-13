@@ -3,7 +3,6 @@
 
 var _ = require('lodash-node');
 var assert = require('chai').assert;
-//var util = require('util');
 
 describe('Macroed', function () {
     /*eslint max-nested-callbacks: 0*/
