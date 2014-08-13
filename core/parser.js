@@ -7,8 +7,8 @@ var R_TRIMMER = /^ */;
 var R_BLOCK_MACRO = /^ *\|\|([\w-]+) *\(([^()]*)\)(?: *(:))? *$/;
 var R_INLINE_MACRO = /{{([\w-]+) *\(([^()]*)\)(?: *(:)([^{}]*))?}}/g;
 
-var R_LINE_BREAK = /\r|\n|\r\n/;
 var R_PARAM = /^ *([a-z]\w*)(?: *= *(?:"((?:\\[\s\S]|[^"])*)"|([^" ]+)))? *$/i;
+var S_EOL = require('os').EOL;
 
 var _ = require('lodash-node');
 var inherit = require('inherit');
@@ -488,7 +488,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
      * */
     __splitByLines: function (s) {
 
-        return s.split(R_LINE_BREAK);
+        return s.split(S_EOL);
     },
 
     /**
