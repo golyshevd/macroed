@@ -10,4 +10,8 @@ describe('macroed', function () {
     it('Should be on instance of Macroed', function () {
         assert.instanceOf(macroed, Macroed);
     });
+
+    it('Should have a reference to Macroed', function () {
+        assert.strictEqual(macroed.Macroed, Macroed);
+    });
 });

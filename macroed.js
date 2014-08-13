@@ -1,5 +1,8 @@
 'use strict';
 
 var Macroed = require('./core/macroed');
+var macroed = new Macroed();
 
-module.exports = new Macroed();
+macroed.Macroed = Macroed;
+
+module.exports = macroed;
