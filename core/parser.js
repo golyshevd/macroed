@@ -1,6 +1,8 @@
 'use strict';
 
+var R_EMPTY = /^\s*$/;
 var R_ESCAPED = /\\([\s\S])/g;
+var R_TRIMMER = /^ */;
 
 var R_BLOCK_MACRO = /^ *\|\|([\w-]+) *\(([^()]*)\)(?: *(:))? *$/;
 var R_INLINE_MACRO = /{{([\w-]+) *\(([^()]*)\)(?: *(:)([^{}]*))?}}/g;
@@ -74,7 +76,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
      * */
     isEmpty: function (s) {
 
-        return /^\s*$/.test(s);
+        return R_EMPTY.test(s);
     },
 
     /**
@@ -130,7 +132,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
             }
 
             //  get current line indentation
-            currIndent = line.match(/^ */)[0].length;
+            currIndent = line.match(R_TRIMMER)[0].length;
 
             //  set initial indentation
             if ( -1 === indent ) {
