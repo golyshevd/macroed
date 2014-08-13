@@ -36,11 +36,9 @@ describe('Parser', function () {
         });
 
         _.forEach(errors, function (f) {
-            it('Should throw a SyntaxError on "' + f + '"', function () {
-                assert.throws(function () {
-                    var p = new Parser(f);
-                    p.splitParams(f);
-                }, SyntaxError);
+            it('Should return null on "' + f + '"', function () {
+                var p = new Parser(f);
+                assert.isNull(p.splitParams(f));
             });
         });
     });
@@ -58,6 +56,7 @@ describe('Parser', function () {
         ];
 
         var errors = [
+            'a="',
             '1=5',
             'a=5 5',
             'a=5,'
@@ -72,11 +71,9 @@ describe('Parser', function () {
         });
 
         _.forEach(errors, function (f) {
-            it('Should throw SyntaxError on "' + f + '"', function () {
-                assert.throws(function () {
-                    var p = new Parser();
-                    p.parseParams(f);
-                }, SyntaxError);
+            it('Should return null on "' + f + '"', function () {
+                var p = new Parser();
+                assert.isNull(p.parseParams(f));
             });
         });
     });
@@ -434,15 +431,140 @@ describe('Parser', function () {
 
         var errors = [
             [
-                '||m()',
-                '   test',
-                '  bad indent'
+                [
+                    '||m()',
+                    '   test',
+                    '  bad indent',
+                    '  bad indent'
+                ],
+                [
+                    {
+                        type: 'macro',
+                        source: '||m()',
+                        name: 'm',
+                        params: {},
+                        items: [
+                            {
+                                type: 'inline',
+                                name: 'default',
+                                source: 'test',
+                                content: 'test',
+                                inline: {}
+                            }
+                        ]
+                    },
+                    {
+                        type: 'inline',
+                        name: 'default',
+                        source: [
+                            '  bad indent',
+                            '  bad indent'
+                        ].join('\n'),
+                        content: [
+                            '  bad indent',
+                            '  bad indent'
+                        ].join('\n'),
+                        inline: {}
+                    }
+                ]
             ],
             [
-                '||m()',
-                '   ||x()',
-                '       text',
-                '      bad indent'
+                [
+                    '||m()',
+                    '   ||x()',
+                    '       text',
+                    '       text',
+                    '      bad indent',
+                    '   text'
+                ],
+                [
+                    {
+                        type: 'macro',
+                        source: '||m()',
+                        name: 'm',
+                        params: {},
+                        items: [
+                            {
+                                type: 'macro',
+                                source: '||x()',
+                                name: 'x',
+                                params: {},
+                                items: [
+                                    {
+                                        type: 'inline',
+                                        name: 'default',
+                                        inline: {},
+                                        source: [
+                                            'text',
+                                            'text'
+                                        ].join('\n'),
+                                        content: [
+                                            'text',
+                                            'text'
+                                        ].join('\n')
+                                    }
+                                ]
+                            },
+                            {
+                                type: 'inline',
+                                name: 'default',
+                                inline: {},
+                                source: [
+                                    '   bad indent',
+                                    'text'
+                                ].join('\n'),
+                                content: [
+                                    '   bad indent',
+                                    'text'
+                                ].join('\n')
+                            }
+                        ]
+                    }
+                ]
+            ],
+            [
+                [
+                    '||m(1=5)'
+                ],
+                [
+                    {
+                        type: 'inline',
+                        name: 'default',
+                        inline: {},
+                        source: '||m(1=5)',
+                        content: '||m(1=5)'
+                    }
+                ]
+            ],
+            [
+                [
+                    '||m()',
+                    '   ||x(1)',
+                    '       text'
+                ],
+                [
+                    {
+                        type: 'macro',
+                        name: 'm',
+                        source: '||m()',
+                        params: {},
+                        items: [
+                            {
+                                type: 'inline',
+                                name: 'default',
+                                inline: {},
+                                source: [
+                                    '||x(1)',
+                                    '    text'
+                                ].join('\n'),
+                                content: [
+                                    '||x(1)',
+                                    '    text'
+                                ].join('\n')
+                            }
+                        ]
+                    }
+                ]
             ]
         ];
 
@@ -457,17 +579,14 @@ describe('Parser', function () {
         });
 
         _.forEach(errors, function (f) {
-            it('Should throw SyntaxError while parsing\n' + f.join('\n'),
-                function () {
-                    assert.throws(function () {
-                        var p = new Parser();
-                        p.parse(f.join('\n'));
-                    }, SyntaxError);
-                });
+            it('Should close block ', function () {
+                var p = new Parser();
+                assert.deepEqual(p.parse(f[0].join('\n')), f[1]);
+            });
         });
     });
 
-    describe('Parser.prototyoe.markInline', function () {
+    describe('Parser.prototype.markInline', function () {
 
         var fixtures = [
             [
@@ -588,6 +707,17 @@ describe('Parser', function () {
                             content: ' content'
                         }
                     }
+                }
+            ],
+            //  should save bad macro body
+            [
+                'inline {{proc(1=5)}} here',
+                {
+                    type: 'inline',
+                    name: 'default',
+                    source: 'inline {{proc(1=5)}} here',
+                    content: 'inline {{proc(1=5)}} here',
+                    inline: {}
                 }
             ]
         ];

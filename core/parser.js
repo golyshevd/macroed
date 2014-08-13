@@ -118,15 +118,60 @@ var Parser = inherit(/** @lends Parser.prototype */ {
         var m;
         var prevIndent = 0;
         var proc = null;
+        var params;
         var result = items;
+        var self = this;
         var stack = [];
 
-        for ( i = 0, l = lines.length; i < l; i += 1 ) {
+        function pushStack () {
+            stack.push({
+                //  current block indent
+                indent: indent,
+                //  current block items
+                items: items,
+                // parent block indent
+                prevIndent: prevIndent
+            });
+        }
+
+        function popStack () {
+            items = stack.pop();
+            indent = items.indent;
+            prevIndent = items.prevIndent;
+            items = items.items;
+            proc = null;
+        }
+
+        function pushLines () {
+
+            if ( '' !== inline ) {
+                items.push(self.markInline(inline));
+                inline = '';
+            }
+        }
+
+        function closeBlock () {
+            pushLines();
+            popStack();
+        }
+
+        function openBlock() {
+            pushLines();
+            pushStack();
+        }
+
+        function addLine () {
+            inline = self.__addLine(inline, line.substring(indent));
+        }
+
+        /* eslint no-labels: 0*/
+        overLines: for ( i = 0, l = lines.length; i < l; i += 1 ) {
             line = lines[i];
 
             //  Like empty line. Should not close block
             if ( this.isEmpty(line) ) {
-                inline = this.__addLine(inline, '');
+                line = '';
+                addLine();
 
                 continue;
             }
@@ -152,30 +197,27 @@ var Parser = inherit(/** @lends Parser.prototype */ {
             while ( currIndent < indent ) {
 
                 if ( currIndent > prevIndent ) {
-                    //    this is invalid!
-
                     //    ||x()
+                    // // ^ prevIndent
                     //          a
+                    //      // ^ indent
                     //        bad indent
+                    //    // ^ currIndent
+                    //  we should close the block
 
-                    //  NOTE: Should we degrade?
-                    throw new SyntaxError(s);
+                    closeBlock();
+                    addLine();
+
+                    //  this is eslint bug! what else var!??
+                    /*eslint block-scoped-var: 0*/
+                    continue overLines;
                 }
 
-                if ( '' !== inline ) {
-                    items.push(this.markInline(inline));
-                    inline = '';
-                }
-
-                items = stack.pop();
-                indent = items.indent;
-                prevIndent = items.prevIndent;
-                items = items.items;
-                proc = null;
+                closeBlock();
             }
 
             if ( proc ) {
-                line = line.substr(indent);
+                line = line.substring(indent);
 
                 if ( '' === proc.content ) {
                     proc.content = line;
@@ -192,29 +234,22 @@ var Parser = inherit(/** @lends Parser.prototype */ {
 
             //  no block recognized, just line
             if ( _.isNull(m) ) {
-                //  trim this line left according to initial indent
-                line = line.substr(indent);
-                //  add line to block
-                inline = this.__addLine(inline, line);
+                addLine();
 
                 continue;
             }
 
-            if ( '' !== inline ) {
-                items.push(this.markInline(inline));
-                inline = '';
+            params = this.parseParams(m[2]);
+
+            //  if the params are bad, then it is like just line!
+            if ( _.isNull(params) ) {
+                addLine();
+
+                continue;
             }
 
             //  block-macro
-            //  push state to stack
-            stack.push({
-                //  current block indent
-                indent: indent,
-                //  current block items
-                items: items,
-
-                prevIndent: prevIndent
-            });
+            openBlock();
 
             //  push node to ast
             if ( m[3] ) {
@@ -222,7 +257,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
                     type: 'proc',
                     source: m[0].substring(currIndent),
                     name: m[1],
-                    params: this.parseParams(m[2]),
+                    params: params,
                     content: ''
                 };
 
@@ -234,7 +269,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
                     type: 'macro',
                     source: m[0].substring(currIndent),
                     name: m[1],
-                    params: this.parseParams(m[2]),
+                    params: params,
                     items: items = []
                 });
             }
@@ -243,9 +278,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
             indent = -1;
         }
 
-        if ( '' !== inline ) {
-            items.push(this.markInline(inline));
-        }
+        pushLines();
 
         return result;
     },
@@ -270,6 +303,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
             content: '',
             inline: {}
         };
+        var params;
 
         R_INLINE_MACRO.lastIndex = 0;
 
@@ -282,6 +316,14 @@ var Parser = inherit(/** @lends Parser.prototype */ {
             }
 
             pos = i + m[0].length;
+            params = this.parseParams(m[2]);
+
+            if ( _.isNull(params) ) {
+                result.content += m[0];
+
+                continue;
+            }
+
             ph = this.genPlaceholder();
 
             if ( m[3] ) {
@@ -289,7 +331,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
                     type: 'proc',
                     source: m[0],
                     name: m[1],
-                    params: this.parseParams(m[2]),
+                    params: params,
                     content: m[4]
                 };
 
@@ -298,7 +340,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
                     type: 'macro',
                     source: m[0],
                     name: m[1],
-                    params: this.parseParams(m[2])
+                    params: params
                 };
             }
 
@@ -306,7 +348,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
         }
 
         if ( pos !== s.length ) {
-            result.content += s.substr(pos);
+            result.content += s.substring(pos);
         }
 
         return result;
@@ -333,7 +375,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
      *
      * @param {String} s
      *
-     * @returns {Object}
+     * @returns {Object|null} null as SyntaxError
      * */
     parseParams: function (s) {
         /*eslint complexity: 0*/
@@ -350,12 +392,17 @@ var Parser = inherit(/** @lends Parser.prototype */ {
 
         params = this.splitParams(s);
 
+        if ( _.isNull(params) ) {
+
+            return null;
+        }
+
         for ( i = 0, l = params.length; i < l; i += 1 ) {
             param = params[i].match(R_PARAM);
 
             if ( _.isNull(param) ) {
 
-                throw new SyntaxError(s);
+                return null;
             }
 
             if ( !param[2] ) {
@@ -392,7 +439,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
      *
      * @param {String} s
      *
-     * @returns {Array<String>}
+     * @returns {Array<String>|null} null like SyntaxError
      * */
     splitParams: function (s) {
         /*eslint complexity: 0*/
@@ -451,7 +498,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
 
         if ( stEsc + stQuot ) {
 
-            throw new SyntaxError(s);
+            return null;
         }
 
         result.push(buf);
