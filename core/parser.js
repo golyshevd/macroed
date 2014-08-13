@@ -273,6 +273,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
         var m;
         var ph;
         var result = {
+            name: 'default',
             type: 'inline',
             source: s,
             content: '',

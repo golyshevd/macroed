@@ -88,6 +88,7 @@ describe.only('Parser', function () {
                 [
                     {
                         type: 'inline',
+                        name: 'default',
                         source: 'hello',
                         inline: {},
                         content: 'hello'
@@ -102,6 +103,7 @@ describe.only('Parser', function () {
                 [
                     {
                         type: 'inline',
+                        name: 'default',
                         source: [
                             'hello',
                             'world!'
@@ -123,6 +125,7 @@ describe.only('Parser', function () {
                 [
                     {
                         type: 'inline',
+                        name: 'default',
                         source: [
                             'a',
                             '',
@@ -146,6 +149,7 @@ describe.only('Parser', function () {
                 [
                     {
                         type: 'inline',
+                        name: 'default',
                         source: 'x',
                         inline: {},
                         content: 'x'
@@ -159,6 +163,7 @@ describe.only('Parser', function () {
                         items: [
                             {
                                 type: 'inline',
+                                name: 'default',
                                 source: 'test',
                                 inline: {},
                                 content: 'test'
@@ -177,6 +182,7 @@ describe.only('Parser', function () {
                 [
                     {
                         type: 'inline',
+                        name: 'default',
                         source: 'x',
                         inline: {},
                         content: 'x'
@@ -190,6 +196,7 @@ describe.only('Parser', function () {
                         items: [
                             {
                                 type: 'inline',
+                                name: 'default',
                                 source: 'test',
                                 inline:{},
                                 content: 'test'
@@ -198,6 +205,7 @@ describe.only('Parser', function () {
                     },
                     {
                         type: 'inline',
+                        name: 'default',
                         source: '   xxx',
                         inline:{},
                         content: '   xxx'
@@ -216,6 +224,7 @@ describe.only('Parser', function () {
                 [
                     {
                         type: 'inline',
+                        name: 'default',
                         source: 'x',
                         inline:{},
                         content: 'x'
@@ -229,6 +238,7 @@ describe.only('Parser', function () {
                         items: [
                             {
                                 type: 'inline',
+                                name: 'default',
                                 source: 'test',
                                 inline:{},
                                 content: 'test'
@@ -237,6 +247,7 @@ describe.only('Parser', function () {
                     },
                     {
                         type: 'inline',
+                        name: 'default',
                         source: [
                             '   xxx',
                             '   xxx'
@@ -266,6 +277,7 @@ describe.only('Parser', function () {
                         items: [
                             {
                                 type: 'inline',
+                                name: 'default',
                                 source: [
                                     'test',
                                     '    xxx',
@@ -306,6 +318,7 @@ describe.only('Parser', function () {
                                 items: [
                                     {
                                         type: 'inline',
+                                        name: 'default',
                                         source: '42',
                                         inline:{},
                                         content: '42'
@@ -314,6 +327,7 @@ describe.only('Parser', function () {
                             },
                             {
                                 type: 'inline',
+                                name: 'default',
                                 source: '777',
                                 inline:{},
                                 content: '777'
@@ -353,6 +367,7 @@ describe.only('Parser', function () {
                             },
                             {
                                 type: 'inline',
+                                name: 'default',
                                 source: 'a',
                                 inline:{},
                                 content: 'a'
@@ -454,6 +469,7 @@ describe.only('Parser', function () {
                 '',
                 {
                     type: 'inline',
+                    name: 'default',
                     source: '',
                     content: '',
                     inline: {}
@@ -463,6 +479,7 @@ describe.only('Parser', function () {
                 'asd',
                 {
                     type: 'inline',
+                    name: 'default',
                     source: 'asd',
                     content: 'asd',
                     inline: {}
@@ -472,6 +489,7 @@ describe.only('Parser', function () {
                 '{{pic()}}',
                 {
                     type: 'inline',
+                    name: 'default',
                     source: '{{pic()}}',
                     content: '0',
                     inline: {
@@ -488,6 +506,7 @@ describe.only('Parser', function () {
                 'a{{pic()}}b',
                 {
                     type: 'inline',
+                    name: 'default',
                     source: 'a{{pic()}}b',
                     content: 'a0b',
                     inline: {
@@ -504,6 +523,7 @@ describe.only('Parser', function () {
                 'a{{pic()}}b{{pic()}}',
                 {
                     type: 'inline',
+                    name: 'default',
                     content: 'a0b1',
                     source: 'a{{pic()}}b{{pic()}}',
                     inline: {
@@ -526,6 +546,7 @@ describe.only('Parser', function () {
                 '{{pic()}}{{pic()}}',
                 {
                     type: 'inline',
+                    name: 'default',
                     source: '{{pic()}}{{pic()}}',
                     content: '01',
                     inline: {
@@ -548,6 +569,7 @@ describe.only('Parser', function () {
                 'inline {{proc(theme=bold): content}}',
                 {
                     type: 'inline',
+                    name: 'default',
                     source: 'inline {{proc(theme=bold): content}}',
                     content: 'inline 0',
                     inline: {
@@ -591,6 +613,7 @@ describe.only('Parser', function () {
         assert.deepEqual(parser.items, [
             {
                 type: 'inline',
+                name: 'default',
                 source: '',
                 content: '',
                 inline: {}
