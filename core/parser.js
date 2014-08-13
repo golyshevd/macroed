@@ -78,6 +78,24 @@ var Parser = inherit(/** @lends Parser.prototype */ {
     },
 
     /**
+     * @private
+     * @memberOf {Parser}
+     * @method
+     *
+     * @param {String} content
+     * @param {String} line
+     * */
+    __addLine: function (content, line) {
+
+        if ( '' === content ) {
+
+            return line;
+        }
+
+        return content + '\n' + line;
+    },
+
+    /**
      * @public
      * @memberOf {Parser}
      * @method
@@ -89,7 +107,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
     parse: function (s) {
         var currIndent;
         var i;
-        var inline = [];
+        var inline = '';
         var items = [];
         var indent = 0;
         var l;
@@ -106,8 +124,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
 
             //  Like empty line. Should not close block
             if ( this.isEmpty(line) ) {
-                inline.push('');
-                //items.push(Parser.markInline(''));
+                inline = this.__addLine(inline, '');
 
                 continue;
             }
@@ -143,9 +160,9 @@ var Parser = inherit(/** @lends Parser.prototype */ {
                     throw new SyntaxError(s);
                 }
 
-                if ( 0 < _.size(inline) ) {
-                    items.push(this.markInline(inline.join('\n')));
-                    inline = [];
+                if ( '' !== inline ) {
+                    items.push(this.markInline(inline));
+                    inline = '';
                 }
 
                 items = stack.pop();
@@ -176,15 +193,14 @@ var Parser = inherit(/** @lends Parser.prototype */ {
                 //  trim this line left according to initial indent
                 line = line.substr(indent);
                 //  add line to block
-                inline.push(line);
-                //items.push(Parser.markInline(line));
+                inline = this.__addLine(inline, line);
 
                 continue;
             }
 
-            if ( 0 < _.size(inline) ) {
-                items.push(this.markInline(inline.join('\n')));
-                inline = [];
+            if ( '' !== inline ) {
+                items.push(this.markInline(inline));
+                inline = '';
             }
 
             //  block-macro
@@ -225,8 +241,8 @@ var Parser = inherit(/** @lends Parser.prototype */ {
             indent = -1;
         }
 
-        if ( 0 < _.size(inline) ) {
-            items.push(this.markInline(inline.join('\n')));
+        if ( '' !== inline ) {
+            items.push(this.markInline(inline));
         }
 
         return result;
