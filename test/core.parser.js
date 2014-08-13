@@ -193,7 +193,6 @@ describe('Parser', function () {
                         source: '||m()',
                         name: 'm',
                         params: {},
-
                         items: [
                             {
                                 type: 'inline',
@@ -620,6 +619,7 @@ describe('Parser', function () {
                     inline: {
                         0: {
                             type: 'macro',
+                            inline: true,
                             source: '{{pic()}}',
                             params: {},
                             name: 'pic'
@@ -637,6 +637,7 @@ describe('Parser', function () {
                     inline: {
                         0: {
                             type: 'macro',
+                            inline: true,
                             source: '{{pic()}}',
                             params: {},
                             name: 'pic'
@@ -654,12 +655,14 @@ describe('Parser', function () {
                     inline: {
                         0: {
                             type: 'macro',
+                            inline: true,
                             source: '{{pic()}}',
                             params: {},
                             name: 'pic'
                         },
                         1: {
                             type: 'macro',
+                            inline: true,
                             source: '{{pic()}}',
                             params: {},
                             name: 'pic'
@@ -677,12 +680,14 @@ describe('Parser', function () {
                     inline: {
                         0: {
                             type: 'macro',
+                            inline: true,
                             source: '{{pic()}}',
                             params: {},
                             name: 'pic'
                         },
                         1: {
                             type: 'macro',
+                            inline: true,
                             source: '{{pic()}}',
                             params: {},
                             name: 'pic'
@@ -700,6 +705,7 @@ describe('Parser', function () {
                     inline: {
                         0: {
                             type: 'proc',
+                            inline: true,
                             source: '{{proc(theme=bold): content}}',
                             params: {
                                 theme: 'bold'

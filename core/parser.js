@@ -85,6 +85,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
             if ( m[3] ) {
                 result.inline[ph] = {
                     type: 'proc',
+                    inline: true,
                     source: m[0],
                     name: m[1],
                     params: params,
@@ -94,6 +95,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
             } else {
                 result.inline[ph] = {
                     type: 'macro',
+                    inline: true,
                     source: m[0],
                     name: m[1],
                     params: params
