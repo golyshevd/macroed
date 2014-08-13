@@ -9,7 +9,7 @@ describe('Parser', function () {
     var Parser = require('../core/parser');
 
     /*eslint max-nested-callbacks: 0*/
-    describe('Parser.prototype.splitByComma', function () {
+    describe('Parser.prototype.splitParams', function () {
 
         var fixtures = [
             ['a', ['a']],
@@ -31,7 +31,7 @@ describe('Parser', function () {
             it('Should split "' + f[0] + '" onto ' + JSON.stringify(f[1]),
                 function () {
                     var p = new Parser();
-                    assert.deepEqual(p.splitByComma(f[0]), f[1]);
+                    assert.deepEqual(p.splitParams(f[0]), f[1]);
                 });
         });
 
@@ -39,7 +39,7 @@ describe('Parser', function () {
             it('Should throw a SyntaxError on "' + f + '"', function () {
                 assert.throws(function () {
                     var p = new Parser(f);
-                    p.splitByComma(f);
+                    p.splitParams(f);
                 }, SyntaxError);
             });
         });

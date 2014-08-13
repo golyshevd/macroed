@@ -348,7 +348,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
             return result;
         }
 
-        params = this.splitByComma(s);
+        params = this.splitParams(s);
 
         for ( i = 0, l = params.length; i < l; i += 1 ) {
             param = params[i].match(R_PARAM);
@@ -394,7 +394,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
      *
      * @returns {Array<String>}
      * */
-    splitByComma: function (s) {
+    splitParams: function (s) {
         /*eslint complexity: 0*/
         var buf = '';
         var c;
