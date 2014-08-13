@@ -8,7 +8,6 @@ var R_BLOCK_MACRO = /^ *\|\|([\w-]+) *\(([^()]*)\)(?: *(:))? *$/;
 var R_INLINE_MACRO = /{{([\w-]+) *\(([^()]*)\)(?: *(:)([^{}]*))?}}/g;
 
 var R_PARAM = /^ *([a-z]\w*)(?: *= *(?:"((?:\\[\s\S]|[^"])*)"|([^" ]+)))? *$/i;
-var S_EOL = require('os').EOL;
 
 var _ = require('lodash-node');
 var inherit = require('inherit');
@@ -35,7 +34,9 @@ var Parser = inherit(/** @lends Parser.prototype */ {
          * @property
          * @type {Object}
          * */
-        this.params = _.extend({}, this.params, params);
+        this.params = _.extend({
+            EOL: require('os').EOL
+        }, this.params, params);
     },
 
     /**
@@ -235,7 +236,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
                     proc.content = line;
 
                 } else {
-                    proc.content += '\n' + line;
+                    proc.content += this.params.EOL + line;
                 }
 
                 continue;
@@ -448,7 +449,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
             return line;
         }
 
-        return content + '\n' + line;
+        return content + this.params.EOL + line;
     },
 
     /**
@@ -488,7 +489,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
      * */
     __splitByLines: function (s) {
 
-        return s.split(S_EOL);
+        return s.split(this.params.EOL);
     },
 
     /**

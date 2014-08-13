@@ -7,6 +7,7 @@ var inherit = require('inherit');
 
 describe('Parser', function () {
     var Parser = require('../core/parser');
+    var EOL = new Parser().params.EOL;
 
     /*eslint max-nested-callbacks: 0*/
     describe('Parser.prototype.splitParams', function () {
@@ -107,12 +108,12 @@ describe('Parser', function () {
                         source: [
                             'hello',
                             'world!'
-                        ].join('\n'),
+                        ].join(EOL),
                         inline: {},
                         content: [
                             'hello',
                             'world!'
-                        ].join('\n')
+                        ].join(EOL)
                     }
                 ]
             ],
@@ -130,13 +131,13 @@ describe('Parser', function () {
                             'a',
                             '',
                             'b'
-                        ].join('\n'),
+                        ].join(EOL),
                         inline: {},
                         content: [
                             'a',
                             '',
                             'b'
-                        ].join('\n')
+                        ].join(EOL)
                     }
                 ]
             ],
@@ -251,12 +252,12 @@ describe('Parser', function () {
                         source: [
                             '   xxx',
                             '   xxx'
-                        ].join('\n'),
+                        ].join(EOL),
                         inline:{},
                         content: [
                             '   xxx',
                             '   xxx'
-                        ].join('\n')
+                        ].join(EOL)
                     }
                 ]
             ],
@@ -282,13 +283,13 @@ describe('Parser', function () {
                                     'test',
                                     '    xxx',
                                     'xxx'
-                                ].join('\n'),
+                                ].join(EOL),
                                 inline:{},
                                 content: [
                                     'test',
                                     '    xxx',
                                     'xxx'
-                                ].join('\n')
+                                ].join(EOL)
                             }
                         ]
                     }
@@ -423,7 +424,7 @@ describe('Parser', function () {
                         content: [
                             '||m()',
                             '    ||m()'
-                        ].join('\n')
+                        ].join(EOL)
                     }
                 ]
             ]
@@ -459,11 +460,11 @@ describe('Parser', function () {
                         source: [
                             '  bad indent',
                             '  bad indent'
-                        ].join('\n'),
+                        ].join(EOL),
                         content: [
                             '  bad indent',
                             '  bad indent'
-                        ].join('\n'),
+                        ].join(EOL),
                         inline: {}
                     }
                 ]
@@ -497,11 +498,11 @@ describe('Parser', function () {
                                         source: [
                                             'text',
                                             'text'
-                                        ].join('\n'),
+                                        ].join(EOL),
                                         content: [
                                             'text',
                                             'text'
-                                        ].join('\n')
+                                        ].join(EOL)
                                     }
                                 ]
                             },
@@ -512,11 +513,11 @@ describe('Parser', function () {
                                 source: [
                                     '   bad indent',
                                     'text'
-                                ].join('\n'),
+                                ].join(EOL),
                                 content: [
                                     '   bad indent',
                                     'text'
-                                ].join('\n')
+                                ].join(EOL)
                             }
                         ]
                     }
@@ -556,11 +557,11 @@ describe('Parser', function () {
                                 source: [
                                     '||x(1)',
                                     '    text'
-                                ].join('\n'),
+                                ].join(EOL),
                                 content: [
                                     '||x(1)',
                                     '    text'
-                                ].join('\n')
+                                ].join(EOL)
                             }
                         ]
                     }
@@ -569,10 +570,10 @@ describe('Parser', function () {
         ];
 
         _.forEach(fixtures, function (f) {
-            it('Should create expected ast from \n' + f[0].join('\n'),
+            it('Should create expected ast from \n' + f[0].join(EOL),
                 function () {
                     var p = new Parser();
-                    var actual = p.parse(f[0].join('\n'));
+                    var actual = p.parse(f[0].join(EOL));
 
                     assert.deepEqual(actual, f[1]);
                 });
@@ -581,7 +582,7 @@ describe('Parser', function () {
         _.forEach(errors, function (f) {
             it('Should close block ', function () {
                 var p = new Parser();
-                assert.deepEqual(p.parse(f[0].join('\n')), f[1]);
+                assert.deepEqual(p.parse(f[0].join(EOL)), f[1]);
             });
         });
     });
