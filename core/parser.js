@@ -42,59 +42,71 @@ var Parser = inherit(/** @lends Parser.prototype */ {
      * @public
      * @memberOf {Parser}
      *
-     * @method
-     *
-     * @returns {String}
-     * */
-    genPlaceholder: /* istanbul ignore next */ function () {
-
-        return uniqueId();
-    },
-
-    /**
-     * @public
-     * @memberOf {Parser}
-     * @method
-     *
      * @param {String} s
      *
-     * @returns {Array<String>}
+     * @returns {Object}
      * */
-    splitByLines: function (s) {
+    markInline: function (s) {
+        var i;
+        var pos = 0;
+        var m;
+        var ph;
+        var result = {
+            name: 'default',
+            type: 'inline',
+            source: s,
+            content: '',
+            inline: {}
+        };
+        var params;
 
-        return s.split(R_LINE_BREAK);
-    },
+        R_INLINE_MACRO.lastIndex = 0;
 
-    /**
-     * @public
-     * @memberOf {Parser}
-     * @method
-     *
-     * @param {String} s
-     *
-     * @returns {Boolean}
-     * */
-    isEmpty: function (s) {
+        /*eslint no-cond-assign: 0*/
+        while ( m = R_INLINE_MACRO.exec(s) ) {
+            i = m.index;
 
-        return R_EMPTY.test(s);
-    },
+            if ( pos !== i ) {
+                result.content += s.substring(pos, i);
+            }
 
-    /**
-     * @private
-     * @memberOf {Parser}
-     * @method
-     *
-     * @param {String} content
-     * @param {String} line
-     * */
-    __addLine: function (content, line) {
+            pos = i + m[0].length;
+            params = this.parseParams(m[2]);
 
-        if ( '' === content ) {
+            if ( _.isNull(params) ) {
+                result.content += m[0];
 
-            return line;
+                continue;
+            }
+
+            ph = this.__genPlaceholder();
+
+            if ( m[3] ) {
+                result.inline[ph] = {
+                    type: 'proc',
+                    source: m[0],
+                    name: m[1],
+                    params: params,
+                    content: m[4]
+                };
+
+            } else {
+                result.inline[ph] = {
+                    type: 'macro',
+                    source: m[0],
+                    name: m[1],
+                    params: params
+                };
+            }
+
+            result.content += ph;
         }
 
-        return content + '\n' + line;
+        if ( pos !== s.length ) {
+            result.content += s.substring(pos);
+        }
+
+        return result;
     },
 
     /**
@@ -114,7 +126,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
         var indent = 0;
         var l;
         var line;
-        var lines = this.splitByLines(s);
+        var lines = this.__splitByLines(s);
         var m;
         var prevIndent = 0;
         var proc = null;
@@ -169,7 +181,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
             line = lines[i];
 
             //  Like empty line. Should not close block
-            if ( this.isEmpty(line) ) {
+            if ( this.__isEmpty(line) ) {
                 line = '';
                 addLine();
 
@@ -286,91 +298,6 @@ var Parser = inherit(/** @lends Parser.prototype */ {
     /**
      * @public
      * @memberOf {Parser}
-     *
-     * @param {String} s
-     *
-     * @returns {Object}
-     * */
-    markInline: function (s) {
-        var i;
-        var pos = 0;
-        var m;
-        var ph;
-        var result = {
-            name: 'default',
-            type: 'inline',
-            source: s,
-            content: '',
-            inline: {}
-        };
-        var params;
-
-        R_INLINE_MACRO.lastIndex = 0;
-
-        /*eslint no-cond-assign: 0*/
-        while ( m = R_INLINE_MACRO.exec(s) ) {
-            i = m.index;
-
-            if ( pos !== i ) {
-                result.content += s.substring(pos, i);
-            }
-
-            pos = i + m[0].length;
-            params = this.parseParams(m[2]);
-
-            if ( _.isNull(params) ) {
-                result.content += m[0];
-
-                continue;
-            }
-
-            ph = this.genPlaceholder();
-
-            if ( m[3] ) {
-                result.inline[ph] = {
-                    type: 'proc',
-                    source: m[0],
-                    name: m[1],
-                    params: params,
-                    content: m[4]
-                };
-
-            } else {
-                result.inline[ph] = {
-                    type: 'macro',
-                    source: m[0],
-                    name: m[1],
-                    params: params
-                };
-            }
-
-            result.content += ph;
-        }
-
-        if ( pos !== s.length ) {
-            result.content += s.substring(pos);
-        }
-
-        return result;
-    },
-
-    /**
-     * @public
-     * @memberOf {Parser}
-     * @method
-     *
-     * @param {String} s
-     *
-     * @returns {String}
-     * */
-    unescape: function (s) {
-
-        return s.replace(R_ESCAPED, '$1');
-    },
-
-    /**
-     * @public
-     * @memberOf {Parser}
      * @method
      *
      * @param {String} s
@@ -385,7 +312,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
         var param;
         var result = {};
 
-        if ( this.isEmpty(s) ) {
+        if ( this.__isEmpty(s) ) {
 
             return result;
         }
@@ -410,7 +337,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
             }
 
             if ( param[2] ) {
-                param[2] = this.unescape(param[2]);
+                param[2] = this.__unescape(param[2]);
             }
 
             if ( _.has(result, param[1]) ) {
@@ -504,6 +431,78 @@ var Parser = inherit(/** @lends Parser.prototype */ {
         result.push(buf);
 
         return result;
+    },
+
+    /**
+     * @private
+     * @memberOf {Parser}
+     * @method
+     *
+     * @param {String} content
+     * @param {String} line
+     * */
+    __addLine: function (content, line) {
+
+        if ( '' === content ) {
+
+            return line;
+        }
+
+        return content + '\n' + line;
+    },
+
+    /**
+     * @private
+     * @memberOf {Parser}
+     * @method
+     *
+     * @returns {String}
+     * */
+    __genPlaceholder: /* istanbul ignore next */ function () {
+
+        return uniqueId();
+    },
+
+    /**
+     * @private
+     * @memberOf {Parser}
+     * @method
+     *
+     * @param {String} s
+     *
+     * @returns {Boolean}
+     * */
+    __isEmpty: function (s) {
+
+        return R_EMPTY.test(s);
+    },
+
+    /**
+     * @private
+     * @memberOf {Parser}
+     * @method
+     *
+     * @param {String} s
+     *
+     * @returns {Array<String>}
+     * */
+    __splitByLines: function (s) {
+
+        return s.split(R_LINE_BREAK);
+    },
+
+    /**
+     * @public
+     * @memberOf {Parser}
+     * @method
+     *
+     * @param {String} s
+     *
+     * @returns {String}
+     * */
+    __unescape: function (s) {
+
+        return s.replace(R_ESCAPED, '$1');
     }
 
 });

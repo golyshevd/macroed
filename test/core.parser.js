@@ -729,7 +729,7 @@ describe('Parser', function () {
                         this.__base(params);
                         this.i = -1;
                     },
-                    genPlaceholder: function () {
+                    __genPlaceholder: function () {
                         this.i += 1;
 
                         return this.i;
