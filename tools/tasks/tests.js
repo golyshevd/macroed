@@ -27,7 +27,7 @@ function runUnit () {
 function runCover (done) {
     var self = this;
     this.src([
-        'macroed.js'
+        'core/**/*.js'
     ])
         .pipe(gulpIstanbul())
         .on('finish', function () {

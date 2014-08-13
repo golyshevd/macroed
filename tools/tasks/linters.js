@@ -3,14 +3,13 @@
 var _ = require('lodash-node');
 var gulpJscs = require('gulp-jscs');
 var gulpEslint = require('gulp-eslint');
-var gulpExclude = require('../gulp-plugins/exclude');
 var gutil = require('gulp-util');
 var lintPatterns = [
+    'core/**/*.js',
     'test/**/*.js',
     'tools/**/*.js',
     '*.js'
 ];
-var excludePatterns = [];
 var through2 = require('through2');
 
 function runJscs () {
@@ -23,7 +22,6 @@ function runEslint (done) {
     var noErrors = true;
 
     this.src(lintPatterns).
-        pipe(gulpExclude(excludePatterns)).
         pipe(gulpEslint()).
         pipe(through2.obj(function (file, enc, cb) {
 
