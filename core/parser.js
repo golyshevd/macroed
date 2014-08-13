@@ -24,17 +24,8 @@ var Parser = inherit(/** @lends Parser.prototype */ {
      * @constructs
      *
      * @param {Object} params
-     * @param {String} content
      * */
-    __constructor: function (params, content) {
-
-        /**
-         * @public
-         * @memberOf {Parser}
-         * @property
-         * @type {String}
-         * */
-        this.type = 'ast';
+    __constructor: function (params) {
 
         /**
          * @public
@@ -43,22 +34,11 @@ var Parser = inherit(/** @lends Parser.prototype */ {
          * @type {Object}
          * */
         this.params = _.extend({}, this.params, params);
-
-        /**
-         * @public
-         * @memberOf {Parser}
-         * @property
-         * @type {Array}
-         * */
-        this.items = Parser.createAst(content);
-    }
-
-}, {
+    },
 
     /**
      * @public
-     * @static
-     * @memberOf Parser
+     * @memberOf {Parser}
      *
      * @method
      *
@@ -71,8 +51,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
 
     /**
      * @public
-     * @static
-     * @memberOf Parser
+     * @memberOf {Parser}
      * @method
      *
      * @param {String} s
@@ -86,8 +65,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
 
     /**
      * @public
-     * @static
-     * @memberOf Parser
+     * @memberOf {Parser}
      * @method
      *
      * @param {String} s
@@ -101,15 +79,14 @@ var Parser = inherit(/** @lends Parser.prototype */ {
 
     /**
      * @public
-     * @static
-     * @memberOf Parser
+     * @memberOf {Parser}
      * @method
      *
      * @param {String} s
      *
      * @returns {Array}
      * */
-    createAst: function (s) {
+    parse: function (s) {
         var currIndent;
         var i;
         var inline = [];
@@ -117,7 +94,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
         var indent = 0;
         var l;
         var line;
-        var lines = Parser.splitByLines(s);
+        var lines = this.splitByLines(s);
         var m;
         var prevIndent = 0;
         var proc = null;
@@ -128,7 +105,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
             line = lines[i];
 
             //  Like empty line. Should not close block
-            if ( Parser.isEmpty(line) ) {
+            if ( this.isEmpty(line) ) {
                 inline.push('');
                 //items.push(Parser.markInline(''));
 
@@ -167,8 +144,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
                 }
 
                 if ( 0 < _.size(inline) ) {
-                    inline = inline.join('\n');
-                    items.push(Parser.markInline(inline));
+                    items.push(this.markInline(inline.join('\n')));
                     inline = [];
                 }
 
@@ -207,8 +183,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
             }
 
             if ( 0 < _.size(inline) ) {
-                inline = inline.join('\n');
-                items.push(Parser.markInline(inline));
+                items.push(this.markInline(inline.join('\n')));
                 inline = [];
             }
 
@@ -229,7 +204,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
                     type: 'proc',
                     source: m[0].substring(currIndent),
                     name: m[1],
-                    params: Parser.parseParams(m[2]),
+                    params: this.parseParams(m[2]),
                     content: ''
                 };
 
@@ -241,7 +216,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
                     type: 'macro',
                     source: m[0].substring(currIndent),
                     name: m[1],
-                    params: Parser.parseParams(m[2]),
+                    params: this.parseParams(m[2]),
                     items: items = []
                 });
             }
@@ -251,8 +226,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
         }
 
         if ( 0 < _.size(inline) ) {
-            inline = inline.join('\n');
-            items.push(Parser.markInline(inline));
+            items.push(this.markInline(inline.join('\n')));
         }
 
         return result;
@@ -260,15 +234,14 @@ var Parser = inherit(/** @lends Parser.prototype */ {
 
     /**
      * @public
-     * @static
-     * @memberOf Parser
+     * @memberOf {Parser}
      *
      * @param {String} s
      *
      * @returns {Object}
      * */
     markInline: function (s) {
-        var i = R_INLINE_MACRO.lastIndex = 0;
+        var i;
         var pos = 0;
         var m;
         var ph;
@@ -280,6 +253,8 @@ var Parser = inherit(/** @lends Parser.prototype */ {
             inline: {}
         };
 
+        R_INLINE_MACRO.lastIndex = 0;
+
         /*eslint no-cond-assign: 0*/
         while ( m = R_INLINE_MACRO.exec(s) ) {
             i = m.index;
@@ -289,14 +264,14 @@ var Parser = inherit(/** @lends Parser.prototype */ {
             }
 
             pos = i + m[0].length;
-            ph = Parser.genPlaceholder();
+            ph = this.genPlaceholder();
 
             if ( m[3] ) {
                 result.inline[ph] = {
                     type: 'proc',
                     source: m[0],
                     name: m[1],
-                    params: Parser.parseParams(m[2]),
+                    params: this.parseParams(m[2]),
                     content: m[4]
                 };
 
@@ -305,7 +280,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
                     type: 'macro',
                     source: m[0],
                     name: m[1],
-                    params: Parser.parseParams(m[2])
+                    params: this.parseParams(m[2])
                 };
             }
 
@@ -321,8 +296,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
 
     /**
      * @public
-     * @static
-     * @memberOf Parser
+     * @memberOf {Parser}
      * @method
      *
      * @param {String} s
@@ -336,8 +310,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
 
     /**
      * @public
-     * @static
-     * @memberOf Parser
+     * @memberOf {Parser}
      * @method
      *
      * @param {String} s
@@ -352,12 +325,12 @@ var Parser = inherit(/** @lends Parser.prototype */ {
         var param;
         var result = {};
 
-        if ( '' === s ) {
+        if ( this.isEmpty(s) ) {
 
             return result;
         }
 
-        params = Parser.splitByComma(s);
+        params = this.splitByComma(s);
 
         for ( i = 0, l = params.length; i < l; i += 1 ) {
             param = params[i].match(R_PARAM);
@@ -372,7 +345,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
             }
 
             if ( param[2] ) {
-                param[2] = Parser.unescape(param[2]);
+                param[2] = this.unescape(param[2]);
             }
 
             if ( _.has(result, param[1]) ) {
@@ -396,8 +369,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
 
     /**
      * @public
-     * @static
-     * @memberOf Parser
+     * @memberOf {Parser}
      * @method
      *
      * @param {String} s

@@ -3,14 +3,13 @@
 
 var _ = require('lodash-node');
 var assert = require('chai').assert;
-//var util = require('util');
+var inherit = require('inherit');
 
-describe.only('Parser', function () {
-
+describe('Parser', function () {
     var Parser = require('../core/parser');
 
     /*eslint max-nested-callbacks: 0*/
-    describe('Parser.splitByComma', function () {
+    describe('Parser.prototype.splitByComma', function () {
 
         var fixtures = [
             ['a', ['a']],
@@ -31,20 +30,22 @@ describe.only('Parser', function () {
         _.forEach(fixtures, function (f) {
             it('Should split "' + f[0] + '" onto ' + JSON.stringify(f[1]),
                 function () {
-                    assert.deepEqual(Parser.splitByComma(f[0]), f[1]);
+                    var p = new Parser();
+                    assert.deepEqual(p.splitByComma(f[0]), f[1]);
                 });
         });
 
         _.forEach(errors, function (f) {
             it('Should throw a SyntaxError on "' + f + '"', function () {
                 assert.throws(function () {
-                    Parser.splitByComma(f);
+                    var p = new Parser(f);
+                    p.splitByComma(f);
                 }, SyntaxError);
             });
         });
     });
 
-    describe('Parser.parseParams', function () {
+    describe('Parser.prototype.parseParams', function () {
 
         var fixtures = [
             ['a', {a: void 0}],
@@ -65,20 +66,22 @@ describe.only('Parser', function () {
         _.forEach(fixtures, function (f) {
             it('Should parse "' + f[0] + '" into ' + JSON.stringify(f[1]),
                 function () {
-                    assert.deepEqual(Parser.parseParams(f[0]), f[1]);
+                    var p = new Parser();
+                    assert.deepEqual(p.parseParams(f[0]), f[1]);
                 });
         });
 
         _.forEach(errors, function (f) {
             it('Should throw SyntaxError on "' + f + '"', function () {
                 assert.throws(function () {
-                    Parser.parseParams(f);
+                    var p = new Parser();
+                    p.parseParams(f);
                 }, SyntaxError);
             });
         });
     });
 
-    describe('Parser.createAst', function () {
+    describe('Parser.prototype.parse', function () {
 
         var fixtures = [
             [
@@ -446,7 +449,8 @@ describe.only('Parser', function () {
         _.forEach(fixtures, function (f) {
             it('Should create expected ast from \n' + f[0].join('\n'),
                 function () {
-                    var actual = Parser.createAst(f[0].join('\n'));
+                    var p = new Parser();
+                    var actual = p.parse(f[0].join('\n'));
 
                     assert.deepEqual(actual, f[1]);
                 });
@@ -456,13 +460,14 @@ describe.only('Parser', function () {
             it('Should throw SyntaxError while parsing\n' + f.join('\n'),
                 function () {
                     assert.throws(function () {
-                        Parser.createAst(f.join('\n'));
+                        var p = new Parser();
+                        p.parse(f.join('\n'));
                     }, SyntaxError);
                 });
         });
     });
 
-    describe('Parser.markInline', function () {
+    describe('Parser.prototyoe.markInline', function () {
 
         var fixtures = [
             [
@@ -589,39 +594,24 @@ describe.only('Parser', function () {
 
         _.forEach(fixtures, function (f) {
             it('Should parse "' + f[0] + '" to expected ast', function () {
-                var i = -1;
-                var genPlaceholder = Parser.genPlaceholder;
+                var P = inherit(Parser, {
+                    __constructor: function (params) {
+                        this.__base(params);
+                        this.i = -1;
+                    },
+                    genPlaceholder: function () {
+                        this.i += 1;
 
-                Parser.genPlaceholder = function () {
-                    i += 1;
+                        return this.i;
+                    }
+                });
 
-                    return i;
-                };
-
-                var actual = Parser.markInline(f[0]);
-
-                Parser.genPlaceholder = genPlaceholder;
+                var p = new P();
+                var actual = p.markInline(f[0]);
 
                 assert.deepEqual(actual, f[1]);
             });
         });
-    });
-
-    it('Should parse text', function () {
-        var parser = new Parser({}, '');
-
-        assert.deepEqual(parser.items, [
-            {
-                type: 'inline',
-                name: 'default',
-                source: '',
-                content: '',
-                inline: {}
-            }
-        ]);
-
-        assert.isObject(parser.params);
-        assert.strictEqual(parser.type, 'ast');
     });
 
 });
