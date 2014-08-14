@@ -6,7 +6,7 @@ var marked = require('marked');
 var macroed = new Macroed();
 
 macroed.registerProc({
-    name: 'default',
+    context: 'default',
     params: {
         gfm: true,
         breaks: true,

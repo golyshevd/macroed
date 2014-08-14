@@ -264,7 +264,7 @@ describe('Macroed', function () {
         it('Should use processor', function () {
             var m = new Macroed();
             m.registerProc({
-                name: 'json',
+                context: 'json',
                 process: function (content) {
                     content = JSON.parse(content);
 
@@ -288,7 +288,7 @@ describe('Macroed', function () {
         it('Should expand string', function () {
             var m = new Macroed();
             m.registerProc({
-                name: 'json',
+                context: 'json',
                 process: function (content) {
                     content = JSON.parse(content);
 
