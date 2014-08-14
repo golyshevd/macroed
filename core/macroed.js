@@ -65,96 +65,6 @@ var Macroed = inherit(/** @lends Macroed.prototype */ {
      * @memberOf {Macroed}
      * @method
      *
-     * @param {Object} node
-     * */
-    expandNode: function (node) {
-        /*eslint complexity: 0*/
-        var name = node.name;
-        var subj;
-        var result = node.source;
-
-        if ( 'macro' === node.type ) {
-            subj = this.__macro[name];
-
-            if ( subj instanceof Macro ) {
-                subj = subj.generate(node.params);
-
-                if ( !/%s/.test(subj) ) {
-
-                    return subj;
-                }
-
-                if ( _.isArray(node.items) ) {
-                    result = this.expandNodeSet(node.items);
-
-                } else {
-                    result = node.content;
-                }
-
-                return subj.replace(/%s/g, result);
-            }
-
-            //  unknown macro
-
-            if ( _.isArray(node.items) && node.items.length ) {
-
-                return result + this.parser.params.EOL +
-                    this.expandNodeSet(node.items);
-            }
-
-            return result;
-        }
-
-        //  proc
-        subj = this.__procs[name];
-
-        if ( subj instanceof Processor ) {
-            result = subj.process(node.content);
-
-            return _.reduce(node.inline, this.__inline, result, this);
-        }
-
-        //  unknown proc
-        return result;
-    },
-
-    /**
-     * @public
-     * @memberOf {Macroed}
-     * @method
-     *
-     * @param {Array} items
-     *
-     * @returns {String}
-     * */
-    expandNodeSet: function (items) {
-        var content = _.map(items, this.expandNode, this);
-
-        content = content.join(this.parser.params.EOL);
-
-        return content;
-    },
-
-    /**
-     * @public
-     * @memberOf {Macroed}
-     * @method
-     *
-     * @param {String} s
-     *
-     * @returns {String}
-     * */
-    expandString: function (s) {
-        var items = this.parser.parse(s);
-
-        return this.expandNodeSet(items);
-    },
-
-    /**
-     * @public
-     * @memberOf {Macroed}
-     * @method
-     *
      * @param {Function} Parent
      * @param {Object} members
      *
@@ -176,15 +86,50 @@ var Macroed = inherit(/** @lends Macroed.prototype */ {
      * @memberOf {Macroed}
      * @method
      *
-     * @param {Object} [members]
+     * @param {Object} node
      *
-     * @returns {Macroed}
+     * @returns {String}
      * */
-    registerProc: function (members) {
-        members = Object(members);
-        this.__procs[members.name] = this.createComponent(Processor, members);
+    expandNode: function (node) {
 
-        return this;
+        if ( 'macro' === node.type ) {
+
+            return this.__expandMacro(node);
+        }
+
+        return this.__applyProc(node);
+    },
+
+    /**
+     * @public
+     * @memberOf {Macroed}
+     * @method
+     *
+     * @param {Array} items
+     *
+     * @returns {String}
+     * */
+    expandNodeSet: function (items) {
+        var result = _.map(items, this.expandNode, this);
+
+        result = result.join(this.parser.params.EOL);
+
+        return result;
+    },
+
+    /**
+     * @public
+     * @memberOf {Macroed}
+     * @method
+     *
+     * @param {String} source
+     *
+     * @returns {String}
+     * */
+    expandString: function (source) {
+        var items = this.parser.parse(source);
+
+        return this.expandNodeSet(items);
     },
 
     /**
@@ -201,6 +146,86 @@ var Macroed = inherit(/** @lends Macroed.prototype */ {
         this.__macro[members.name] = this.createComponent(Macro, members);
 
         return this;
+    },
+
+    /**
+     * @public
+     * @memberOf {Macroed}
+     * @method
+     *
+     * @param {Object} [members]
+     *
+     * @returns {Macroed}
+     * */
+    registerProc: function (members) {
+        members = Object(members);
+        this.__procs[members.name] = this.createComponent(Processor, members);
+
+        return this;
+    },
+
+    /**
+     * @private
+     * @memberOf {Macroed}
+     * @method
+     *
+     * @param {Object} node
+     *
+     * @returns {String}
+     * */
+    __applyProc: function (node) {
+        var result = node.source;
+        var proc = this.__procs[node.name];
+
+        if ( proc instanceof Processor ) {
+            result = proc.process(node.content);
+
+            return _.reduce(node.inline, this.__inline, result, this);
+        }
+
+        //  unknown proc
+        return result;
+    },
+
+    /**
+     * @private
+     * @memberOf {Macroed}
+     * @method
+     *
+     * @param {Object} node
+     *
+     * @returns {String}
+     * */
+    __expandMacro: function (node) {
+        var result = node.source;
+        var macro;
+
+        if ( !_.has(this.__macro, node.name) ) {
+            //  unknown macro
+            if ( _.isArray(node.items) && node.items.length ) {
+
+                return result + this.parser.params.EOL +
+                       this.expandNodeSet(node.items);
+            }
+
+            return result;
+        }
+
+        macro = this.__macro[node.name].generate(node.params);
+
+        if ( !/%s/.test(macro) ) {
+
+            return macro;
+        }
+
+        if ( _.isArray(node.items) ) {
+            result = this.expandNodeSet(node.items);
+
+        } else {
+            result = node.content;
+        }
+
+        return macro.replace(/%s/g, result);
     },
 
     /**
