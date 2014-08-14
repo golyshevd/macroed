@@ -14,4 +14,9 @@ describe('macroed', function () {
     it('Should have a reference to Macroed', function () {
         assert.strictEqual(macroed.Macroed, Macroed);
     });
+
+    it('Should support markdown by default', function () {
+        assert.strictEqual(macroed.expandString('http://www.yandex.ru'),
+            '<p><a href="http://www.yandex.ru">http://www.yandex.ru</a></p>\n');
+    });
 });
