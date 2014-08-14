@@ -8,7 +8,7 @@ var R_TRIMMER = /^ */;
 //      subject
 //  ||macro()
 //      subject
-//                       1              2           3
+//                             1              2           3
 var R_BLOCK_MACRO = /^ *\|\|(?:([\w-]+) *: *)?([\w-]+) *\(([^()]*)\) *$/;
 
 //  {{macro()}}
