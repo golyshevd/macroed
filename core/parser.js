@@ -2,14 +2,14 @@
 
 var R_EMPTY = /^\s*$/;
 var R_ESCAPED = /\\([\s\S])/g;
-var R_TRIMMER = /^ */;
+var R_TRIMMER = /^[ \t]*/;
 
 //  ||proc:macro()
 //      subject
 //  ||macro()
 //      subject
-//                             1              2           3
-var R_BLOCK_MACRO = /^ *\|\|(?:([\w-]+) *: *)?([\w-]+) *\(([^()]*)\) *$/;
+//                                 1              2           3
+var R_BLOCK_MACRO = /^[ \t]*\|\|(?:([\w-]+) *: *)?([\w-]+) *\(([^()]*)\) *$/;
 
 //  {{macro()}}
 //  {{macro():content}}
