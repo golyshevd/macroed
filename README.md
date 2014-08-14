@@ -1,56 +1,113 @@
 macroed [![Build Status](https://travis-ci.org/golyshevd/macroed.svg)](https://travis-ci.org/golyshevd/macroed)
 =========
 
-macroed is simple macros expand tool for nodejs
+macroed is a powerful and flexible macros expand tool for nodejs
 
 Usage
 ---------
 ```js
-var Macroed = require('macroed');
-var macroed = new Macroed();
+var macroed = require('macroed');
 
 //  just like inline macros
-macroed.register('smile', function () {
-  
-    return ':)';
+macroed.setProcessor({
+    name: 'smile',
+    process: function () {
+      
+        return ':)';
+    }
 });
 
-macroed.expand('Hello {{smile()}}'); // -> 'Hello :)'
+macroed.expandString('Hello {{smile()}}'); // -> 'Hello :)'
 
 //  block macros
-macroed.register('greet', function () {
-
-    return 'Hello, %s!';
+macroed.setProcessor({
+    name: 'wrapper',
+    process: function (params) {
+        
+        return '<div class="wrapper wrapper_align_' + params.align + '">\s%</div>';
+    }
 });
 
-macroed.expand('{{greet() {{golyshevd {smile()}}}}}'); // -> Hello, golyshevd :)!
+var string = [
+    '||wrapper(align=right)',
+    '   I am at right!'
+].join('\n');
 
-//  macros supports params
-macroed.register('params-demo', function (params) {
-    assert.deepEqual(params, {a: '42', b: '146'});
+macroed.expandString(string); // -> <div class="wrapper wrapper_align_right">I am at right!</div>
+
+//  inline processor
+macroed.setProcessor({
+    name: 'bolder',
+    process: function (params, content) {
+        
+        return '<b style="font-weight: ' + params.weight + '">' + content + '</b>';
+    }
 });
 
-macroed.expand('{{params-demo(a=42,b=146)}}');
+macroed.expandString('{{bolder(weight=700):This text is bolder}} than that');
+//  <b style="font-weight: 700">This text is bolder</b> than that
 
-//  macros can generate.... macros
-macroed.register('widget', function () {
-    
-    return '{{greet(){golyshevd {{smile()}}}}}';
+
+// Aaand block processors
+macroed.setProcessor({
+    name: 'xslt',
+    process: function (params, content) {
+        
+        return applyXslt(params.stylesheet, content);
+    }
 });
 
-macroed.expand('{{widget()}}'); // -> Hello, golyshevd :)!
+string = [
+    '||xslt(stylesheet=index.xsl):',
+    '   <xml>',
+    '       <OMG/>',
+    '   </xml>'
+].join('\n');
 
-// macroed easy to use with other processors
+macroed.expandString(string);   //  <result of xslt>
+
+//  default processor
 var marked = require('marked');
 
-macroed.register('wrapper', function (params) {
-  
-    return '<div id="' + params.id + '" class="my-wrapper">%s</div>';
+macroed.setProcessor({
+    name: 'default',
+    params: {
+        smartypants: true
+    },
+    process: function (params, content) {
+        
+        return marked(this.params, content);
+    }
 });
 
-var markdown = macroed.expand('{{wrapper(id=42)}{[Yandex](http://www.yandex.ru)}}');
+macroed.expandString('##{{bolder(weight=bold):This}} is awesome!');
+//  <h2 id="this-is-awesome"><b style="font-weight: bold">This</b> is awesome!</h2>
 
-marked(markdown); // <div id="42" class="my-wrapper"><a href="http://www.yandex.ru">Yandex</a></div>
+//  so poor?
+string = [
+    'Ok, lets write something!',
+    '-------------------------',
+    'First, {{accent(type=bold):media-slider}}!',
+    '||media-viewer(effect=fade)'
+    '   ![sea](/sea.png)',
+    '   ||note()',
+    '       ![cat](/cat.png)',
+    '       it is my crazy fat cat!',
+    '   ![car](/car.png)',
+    '   {{youtube():yJOs7pgdf_g}}',
+    '   ||diagram():',
+    '       some->crazy->syntax',
+    '       parse->it->how->you->want',
+    '',
+    'Is not it cool?',
+    'Tired from markdown, lets switch to docbook',
+    '||docbook():',
+    '   <para>',
+    '       Omg xml is so difficult',
+    '   </para>'
+].join('\n');
+
+macroed.expandString(string); // -> Booo!
 
 ```
 
