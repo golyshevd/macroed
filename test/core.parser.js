@@ -617,6 +617,37 @@ describe('Parser', function () {
                         ]
                     }
                 ]
+            ],
+            //  should support tabs
+            [
+                [
+                    '||m()',
+                    '\ttext',
+                    '\ttext'
+                ],
+                [
+                    {
+                        type: 'macro',
+                        name: 'm',
+                        source: '||m()',
+                        params: {},
+                        items: [
+                            {
+                                type: 'proc',
+                                name: 'default',
+                                inline: {},
+                                source: [
+                                    'text',
+                                    'text'
+                                ].join(EOL),
+                                content: [
+                                    'text',
+                                    'text'
+                                ].join(EOL)
+                            }
+                        ]
+                    }
+                ]
             ]
         ];
 
