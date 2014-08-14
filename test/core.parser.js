@@ -88,7 +88,7 @@ describe('Parser', function () {
                 ],
                 [
                     {
-                        type: 'proc',
+                        type: 'context',
                         name: 'default',
                         source: 'hello',
                         inline: {},
@@ -103,7 +103,7 @@ describe('Parser', function () {
                 ],
                 [
                     {
-                        type: 'proc',
+                        type: 'context',
                         name: 'default',
                         source: [
                             'hello',
@@ -125,7 +125,7 @@ describe('Parser', function () {
                 ],
                 [
                     {
-                        type: 'proc',
+                        type: 'context',
                         name: 'default',
                         source: [
                             'a',
@@ -149,7 +149,7 @@ describe('Parser', function () {
                 ],
                 [
                     {
-                        type: 'proc',
+                        type: 'context',
                         name: 'default',
                         source: 'x',
                         inline: {},
@@ -157,12 +157,13 @@ describe('Parser', function () {
                     },
                     {
                         type: 'macro',
+                        context: 'default',
                         name: 'm',
                         params: {},
                         source: '||m()',
                         items: [
                             {
-                                type: 'proc',
+                                type: 'context',
                                 name: 'default',
                                 source: 'test',
                                 inline: {},
@@ -181,7 +182,7 @@ describe('Parser', function () {
                 ],
                 [
                     {
-                        type: 'proc',
+                        type: 'context',
                         name: 'default',
                         source: 'x',
                         inline: {},
@@ -189,12 +190,13 @@ describe('Parser', function () {
                     },
                     {
                         type: 'macro',
+                        context: 'default',
                         source: '||m()',
                         name: 'm',
                         params: {},
                         items: [
                             {
-                                type: 'proc',
+                                type: 'context',
                                 name: 'default',
                                 source: 'test',
                                 inline: {},
@@ -203,7 +205,7 @@ describe('Parser', function () {
                         ]
                     },
                     {
-                        type: 'proc',
+                        type: 'context',
                         name: 'default',
                         source: '   xxx',
                         inline: {},
@@ -221,7 +223,7 @@ describe('Parser', function () {
                 ],
                 [
                     {
-                        type: 'proc',
+                        type: 'context',
                         name: 'default',
                         source: 'x',
                         inline: {},
@@ -229,12 +231,13 @@ describe('Parser', function () {
                     },
                     {
                         type: 'macro',
+                        context: 'default',
                         source: '||m()',
                         name: 'm',
                         params: {},
                         items: [
                             {
-                                type: 'proc',
+                                type: 'context',
                                 name: 'default',
                                 source: 'test',
                                 inline: {},
@@ -243,7 +246,7 @@ describe('Parser', function () {
                         ]
                     },
                     {
-                        type: 'proc',
+                        type: 'context',
                         name: 'default',
                         source: [
                             '   xxx',
@@ -267,12 +270,13 @@ describe('Parser', function () {
                 [
                     {
                         type: 'macro',
+                        context: 'default',
                         source: '||m()',
                         name: 'm',
                         params: {},
                         items: [
                             {
-                                type: 'proc',
+                                type: 'context',
                                 name: 'default',
                                 source: [
                                     'test',
@@ -300,18 +304,20 @@ describe('Parser', function () {
                 [
                     {
                         type: 'macro',
+                        context: 'default',
                         source: '||m()',
                         name: 'm',
                         params: {},
                         items: [
                             {
                                 type: 'macro',
+                                context: 'default',
                                 source: '||x()',
                                 name: 'x',
                                 params: {},
                                 items: [
                                     {
-                                        type: 'proc',
+                                        type: 'context',
                                         name: 'default',
                                         source: '42',
                                         inline: {},
@@ -320,7 +326,7 @@ describe('Parser', function () {
                                 ]
                             },
                             {
-                                type: 'proc',
+                                type: 'context',
                                 name: 'default',
                                 source: '777',
                                 inline: {},
@@ -340,18 +346,21 @@ describe('Parser', function () {
                 [
                     {
                         type: 'macro',
+                        context: 'default',
                         name: 'a',
                         source: '||a()',
                         params: {},
                         items: [
                             {
                                 type: 'macro',
+                                context: 'default',
                                 source: '||b()',
                                 name: 'b',
                                 params: {},
                                 items: [
                                     {
                                         type: 'macro',
+                                        context: 'default',
                                         source: '||c()',
                                         name: 'c',
                                         params: {},
@@ -360,7 +369,7 @@ describe('Parser', function () {
                                 ]
                             },
                             {
-                                type: 'proc',
+                                type: 'context',
                                 name: 'default',
                                 source: 'a',
                                 inline: {},
@@ -378,6 +387,7 @@ describe('Parser', function () {
                 [
                     {
                         type: 'macro',
+                        context: 'default',
                         source: '||proc:m()',
                         name: 'm',
                         params: {},
@@ -393,12 +403,13 @@ describe('Parser', function () {
                 [
                     {
                         type: 'macro',
+                        context: 'default',
                         source: '||proc:m()',
                         name: 'm',
                         params: {},
                         items: [
                             {
-                                type: 'proc',
+                                type: 'context',
                                 name: 'proc',
                                 content: 'text',
                                 source: 'text',
@@ -420,12 +431,13 @@ describe('Parser', function () {
                 [
                     {
                         type: 'macro',
+                        context: 'default',
                         source: '||proc:m()',
                         name: 'm',
                         params: {},
                         items: [
                             {
-                                type: 'proc',
+                                type: 'context',
                                 name: 'proc',
                                 content: 'text1',
                                 source: 'text1',
@@ -433,12 +445,13 @@ describe('Parser', function () {
                             },
                             {
                                 type: 'macro',
+                                context: 'proc',
                                 source: '||default:x()',
                                 name: 'x',
                                 params: {},
                                 items: [
                                     {
-                                        type: 'proc',
+                                        type: 'context',
                                         name: 'default',
                                         source: 'text2',
                                         content: 'text2',
@@ -447,7 +460,7 @@ describe('Parser', function () {
                                 ]
                             },
                             {
-                                type: 'proc',
+                                type: 'context',
                                 name: 'proc',
                                 content: 'text3',
                                 source: 'text3',
@@ -456,7 +469,7 @@ describe('Parser', function () {
                         ]
                     },
                     {
-                        type: 'proc',
+                        type: 'context',
                         name: 'default',
                         source: 'text4',
                         content: 'text4',
@@ -472,6 +485,7 @@ describe('Parser', function () {
                 [
                     {
                         type: 'macro',
+                        context: 'default',
                         source: '||proc:m(a=5)',
                         name: 'm',
                         params: {
@@ -491,12 +505,13 @@ describe('Parser', function () {
                 [
                     {
                         type: 'macro',
+                        context: 'default',
                         source: '||m()',
                         name: 'm',
                         params: {},
                         items: [
                             {
-                                type: 'proc',
+                                type: 'context',
                                 name: 'default',
                                 source: 'test',
                                 content: 'test',
@@ -505,7 +520,7 @@ describe('Parser', function () {
                         ]
                     },
                     {
-                        type: 'proc',
+                        type: 'context',
                         name: 'default',
                         source: [
                             '  bad indent',
@@ -532,18 +547,20 @@ describe('Parser', function () {
                 [
                     {
                         type: 'macro',
+                        context: 'default',
                         source: '||m()',
                         name: 'm',
                         params: {},
                         items: [
                             {
                                 type: 'macro',
+                                context: 'default',
                                 source: '||x()',
                                 name: 'x',
                                 params: {},
                                 items: [
                                     {
-                                        type: 'proc',
+                                        type: 'context',
                                         name: 'default',
                                         inline: {},
                                         source: [
@@ -558,7 +575,7 @@ describe('Parser', function () {
                                 ]
                             },
                             {
-                                type: 'proc',
+                                type: 'context',
                                 name: 'default',
                                 inline: {},
                                 source: [
@@ -580,7 +597,7 @@ describe('Parser', function () {
                 ],
                 [
                     {
-                        type: 'proc',
+                        type: 'context',
                         name: 'default',
                         inline: {},
                         source: '||m(1=5)',
@@ -597,12 +614,13 @@ describe('Parser', function () {
                 [
                     {
                         type: 'macro',
+                        context: 'default',
                         name: 'm',
                         source: '||m()',
                         params: {},
                         items: [
                             {
-                                type: 'proc',
+                                type: 'context',
                                 name: 'default',
                                 inline: {},
                                 source: [
@@ -628,12 +646,13 @@ describe('Parser', function () {
                 [
                     {
                         type: 'macro',
+                        context: 'default',
                         name: 'm',
                         source: '||m()',
                         params: {},
                         items: [
                             {
-                                type: 'proc',
+                                type: 'context',
                                 name: 'default',
                                 inline: {},
                                 source: [
@@ -652,7 +671,8 @@ describe('Parser', function () {
         ];
 
         _.forEach(fixtures, function (f) {
-            it('Should create expected ast from \n' + f[0].join(EOL),
+            var json = JSON.stringify(f[1], null, 4);
+            it('Should parse \n' + f[0].join(EOL) + '\n to\n' + json,
                 function () {
                     var p = new Parser();
                     var actual = p.parse(f[0].join(EOL));
@@ -690,6 +710,7 @@ describe('Parser', function () {
                     inline: {
                         0: {
                             type: 'macro',
+                            context: 'default',
                             source: '{{pic()}}',
                             params: {},
                             name: 'pic',
@@ -706,6 +727,7 @@ describe('Parser', function () {
                     inline: {
                         0: {
                             type: 'macro',
+                            context: 'default',
                             source: '{{pic()}}',
                             params: {},
                             name: 'pic',
@@ -722,6 +744,7 @@ describe('Parser', function () {
                     inline: {
                         0: {
                             type: 'macro',
+                            context: 'default',
                             source: '{{pic()}}',
                             params: {},
                             name: 'pic',
@@ -729,6 +752,7 @@ describe('Parser', function () {
                         },
                         1: {
                             type: 'macro',
+                            context: 'default',
                             source: '{{pic()}}',
                             params: {},
                             name: 'pic',
@@ -745,6 +769,7 @@ describe('Parser', function () {
                     inline: {
                         0: {
                             type: 'macro',
+                            context: 'default',
                             source: '{{pic()}}',
                             params: {},
                             name: 'pic',
@@ -752,6 +777,7 @@ describe('Parser', function () {
                         },
                         1: {
                             type: 'macro',
+                            context: 'default',
                             source: '{{pic()}}',
                             params: {},
                             name: 'pic',
@@ -768,6 +794,7 @@ describe('Parser', function () {
                     inline: {
                         0: {
                             type: 'macro',
+                            context: 'default',
                             source: '{{proc(theme=bold):content}}',
                             params: {
                                 theme: 'bold'
@@ -806,7 +833,7 @@ describe('Parser', function () {
                 });
 
                 var p = new P();
-                var actual = p.markOut(f[0]);
+                var actual = p.markOut(f[0], 'default');
 
                 assert.deepEqual(actual, f[1]);
             });
