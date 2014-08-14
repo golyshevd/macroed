@@ -45,7 +45,7 @@ describe('Macroed', function () {
         var fixtures = [
             [
                 {
-                    type: 'proc',
+                    type: 'context',
                     name: 'default',
                     inline: {},
                     content: 'a',
@@ -57,7 +57,7 @@ describe('Macroed', function () {
             ],
             [
                 {
-                    type: 'proc',
+                    type: 'context',
                     name: 'unknown',
                     inline: {},
                     content: 'a',
@@ -70,12 +70,13 @@ describe('Macroed', function () {
             [
                 {
                     type: 'macro',
+                    context: 'default',
                     name: 'm',
                     params: {},
                     source: '||proc:m()',
                     items: [
                         {
-                            type: 'proc',
+                            type: 'context',
                             name: 'unknown',
                             inline: {},
                             content: 'a',
@@ -91,6 +92,7 @@ describe('Macroed', function () {
             [
                 {
                     type: 'macro',
+                    context: 'default',
                     name: 'm',
                     params: {},
                     source: '{{m():a}}',
@@ -103,6 +105,7 @@ describe('Macroed', function () {
             [
                 {
                     type: 'macro',
+                    context: 'default',
                     name: 'm',
                     params: {},
                     source: '||m()',
@@ -114,11 +117,12 @@ describe('Macroed', function () {
             ],
             [
                 {
-                    type: 'proc',
+                    type: 'context',
                     name: 'default',
                     inline: {
                         0: {
                             type: 'macro',
+                            context: 'default',
                             name: 'm',
                             params: {},
                             source: '{{m()}}',
@@ -135,12 +139,13 @@ describe('Macroed', function () {
             [
                 {
                     type: 'macro',
+                    context: 'default',
                     name: 'm',
                     params: {},
                     source: '||m()',
                     items: [
                         {
-                            type: 'proc',
+                            type: 'context',
                             name: 'default',
                             inline: {},
                             content: 'a',
@@ -185,13 +190,14 @@ describe('Macroed', function () {
             });
 
             var s = m.expandNode({
-                type: 'proc',
+                type: 'context',
                 name: 'default',
                 source: 'a {{m(a=42)}} b',
                 content: 'a 0 b',
                 inline: {
                     0: {
                         type: 'macro',
+                        context: 'default',
                         name: 'm',
                         params: {
                             a: '42'
@@ -205,13 +211,14 @@ describe('Macroed', function () {
             assert.strictEqual(s, 'a 42 b');
 
             s = m.expandNode({
-                type: 'proc',
+                type: 'context',
                 name: 'default',
                 source: 'a {{s():!}} b',
                 content: 'a 0 b',
                 inline: {
                     0: {
                         type: 'macro',
+                        context: 'default',
                         name: 's',
                         params: {},
                         source: '{{s():!}}',
@@ -234,6 +241,7 @@ describe('Macroed', function () {
             });
             var s = m.expandNode({
                 type: 'macro',
+                context: 'default',
                 name: 's',
                 source: '||s(x=42)',
                 params: {
@@ -241,7 +249,7 @@ describe('Macroed', function () {
                 },
                 items: [
                     {
-                        type: 'proc',
+                        type: 'context',
                         name: 'default',
                         source: 'a',
                         content: 'a',
@@ -264,7 +272,7 @@ describe('Macroed', function () {
                 }
             });
             var s = m.expandNode({
-                type: 'proc',
+                type: 'context',
                 name: 'json',
                 inline: {},
                 source: '{"a":42}',

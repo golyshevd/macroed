@@ -3,18 +3,8 @@
 var R_EMPTY = /^\s*$/;
 var R_ESCAPED = /\\([\s\S])/g;
 var R_TRIMMER = /^[ \t]*/;
-
-//  ||proc:macro()
-//      subject
-//  ||macro()
-//      subject
-//                                 1              2           3
 var R_BLOCK_MACRO = /^[ \t]*\|\|(?:([\w-]+) *: *)?([\w-]+) *\(([^()]*)\) *$/;
-
-//  {{macro()}}
-//  {{macro():content}}
 var R_INLINE_MACRO = /{{([\w-]+) *\(([^()]*)\)(?: *:([^{}]*))?}}/g;
-
 var R_PARAM = /^ *([a-z]\w*)(?: *= *(?:"((?:\\[\s\S]|[^"])*)"|([^" ]+)))? *$/i;
 
 var _ = require('lodash-node');
@@ -53,10 +43,11 @@ var Parser = inherit(/** @lends Parser.prototype */ {
      * @method
      *
      * @param {String} source
+     * @param {String} context
      *
      * @returns {Object}
      * */
-    markOut: function (source) {
+    markOut: function (source, context) {
         var inline = {};
         var self = this;
 
@@ -77,6 +68,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
                 name: name,
                 params: params,
                 content: content || '',
+                context: context,
                 type: 'macro'
             };
 
@@ -110,7 +102,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
         var lines = this.__splitByLines(s);
         var m;
         var prevIndent = 0;
-        var proc = 'default';
+        var context = 'default';
         var params;
         var result = items;
         var self = this;
@@ -124,8 +116,8 @@ var Parser = inherit(/** @lends Parser.prototype */ {
                 items: items,
                 //  parent block indent
                 prevIndent: prevIndent,
-                //  current processor
-                proc: proc
+                //  current context
+                context: context
             });
         }
 
@@ -134,7 +126,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
 
             indent = items.indent;
             prevIndent = items.prevIndent;
-            proc = items.proc;
+            context = items.context;
             items = items.items;
         }
 
@@ -145,11 +137,11 @@ var Parser = inherit(/** @lends Parser.prototype */ {
                 return;
             }
 
-            inline = self.markOut(inline);
+            inline = self.markOut(inline, context);
 
             items.push(_.extend({
-                type: 'proc',
-                name: proc
+                type: 'context',
+                name: context
             }, inline));
 
             inline = '';
@@ -231,7 +223,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
                 continue;
             }
 
-            //  ||(proc:)?macro()
+            //  ||(context:)?macro()
             params = this.parseParams(m[3]);
 
             if ( _.isNull(params) ) {
@@ -242,17 +234,18 @@ var Parser = inherit(/** @lends Parser.prototype */ {
 
             openBlock();
 
-            if ( m[1] ) {
-                proc = m[1];
-            }
-
             items.push({
                 type: 'macro',
+                context: context,
                 source: m[0].substring(currIndent),
                 name: m[2],
                 params: params,
                 items: items = []
             });
+
+            if ( m[1] ) {
+                context = m[1];
+            }
 
             prevIndent = currIndent;
             indent = -1;
@@ -420,6 +413,8 @@ var Parser = inherit(/** @lends Parser.prototype */ {
      *
      * @param {String} content
      * @param {String} line
+     *
+     * @returns {String}
      * */
     __addLine: function (content, line) {
 
