@@ -413,6 +413,8 @@ var Parser = inherit(/** @lends Parser.prototype */ {
      *
      * @param {String} content
      * @param {String} line
+     *
+     * @returns {String}
      * */
     __addLine: function (content, line) {
 
