@@ -7,17 +7,17 @@ var assert = require('chai').assert;
 describe('Macroed', function () {
     /*eslint max-nested-callbacks: 0*/
     var Macroed = require('../core/macroed');
-    var Processor = require('../core/processor');
+    var Component = require('../core/component');
 
-    describe('Macroed.prototype.createProcessor', function () {
+    describe('Macroed.prototype.createComponent', function () {
 
-        it('Should be an instance of Processor', function () {
+        it('Should be an instance of Component', function () {
             var m = new Macroed();
-            var p = m.createProcessor({
+            var p = m.createComponent(Component, {
                 name: 'test'
             });
 
-            assert.instanceOf(p, Processor);
+            assert.instanceOf(p, Component);
         });
 
         it('Should override Macroed params', function () {
@@ -26,7 +26,7 @@ describe('Macroed', function () {
                 b: 777
             });
 
-            var p = m.createProcessor({
+            var p = m.createComponent(Component, {
                 name: 'test',
                 params: {
                     a: 43
@@ -45,7 +45,7 @@ describe('Macroed', function () {
         var fixtures = [
             [
                 {
-                    type: 'inline',
+                    type: 'proc',
                     name: 'default',
                     inline: {},
                     content: 'a',
@@ -58,26 +58,46 @@ describe('Macroed', function () {
             [
                 {
                     type: 'proc',
-                    name: 'proc',
-                    params: {},
-                    source: '||proc():',
-                    content: 'a'
+                    name: 'unknown',
+                    inline: {},
+                    content: 'a',
+                    source: 'a'
                 },
                 [
-                    '||proc():',
                     'a'
                 ]
             ],
             [
                 {
-                    type: 'proc',
-                    name: 'proc',
-                    inline: true,
+                    type: 'macro',
+                    name: 'm',
                     params: {},
-                    source: '{{proc():a}}'
+                    source: '||proc:m()',
+                    items: [
+                        {
+                            type: 'proc',
+                            name: 'unknown',
+                            inline: {},
+                            content: 'a',
+                            source: 'a'
+                        }
+                    ]
                 },
                 [
-                    '{{proc():a}}'
+                    '||proc:m()',
+                    'a'
+                ]
+            ],
+            [
+                {
+                    type: 'macro',
+                    name: 'm',
+                    params: {},
+                    source: '{{m():a}}',
+                    content: 'a'
+                },
+                [
+                    '{{m():a}}'
                 ]
             ],
             [
@@ -94,27 +114,15 @@ describe('Macroed', function () {
             ],
             [
                 {
-                    type: 'macro',
-                    name: 'm',
-                    params: {},
-                    source: '{{m()}}',
-                    inline: true
-                },
-                [
-                    '{{m()}}'
-                ]
-            ],
-            [
-                {
-                    type: 'inline',
+                    type: 'proc',
                     name: 'default',
                     inline: {
                         0: {
                             type: 'macro',
-                            inline: true,
                             name: 'm',
                             params: {},
-                            source: '{{m()}}'
+                            source: '{{m()}}',
+                            content: ''
                         }
                     },
                     content: 'a 0 b',
@@ -132,7 +140,7 @@ describe('Macroed', function () {
                     source: '||m()',
                     items: [
                         {
-                            type: 'inline',
+                            type: 'proc',
                             name: 'default',
                             inline: {},
                             content: 'a',
@@ -159,15 +167,25 @@ describe('Macroed', function () {
 
         it('Should expand inline macro', function () {
             var m = new Macroed();
-            m.setProcessor({
+
+            m.registerMacro({
                 name: 'm',
-                process: function (params) {
+                generate: function (params) {
 
                     return params.a;
                 }
             });
+
+            m.registerMacro({
+                name: 's',
+                generate: function () {
+
+                    return '(%s)';
+                }
+            });
+
             var s = m.expandNode({
-                type: 'inline',
+                type: 'proc',
                 name: 'default',
                 source: 'a {{m(a=42)}} b',
                 content: 'a 0 b',
@@ -175,37 +193,55 @@ describe('Macroed', function () {
                     0: {
                         type: 'macro',
                         name: 'm',
-                        inline: true,
                         params: {
                             a: '42'
                         },
-                        source: '{{m(a=42)}}'
+                        source: '{{m(a=42)}}',
+                        content: ''
                     }
                 }
             });
 
             assert.strictEqual(s, 'a 42 b');
+
+            s = m.expandNode({
+                type: 'proc',
+                name: 'default',
+                source: 'a {{s():!}} b',
+                content: 'a 0 b',
+                inline: {
+                    0: {
+                        type: 'macro',
+                        name: 's',
+                        params: {},
+                        source: '{{s():!}}',
+                        content: '!'
+                    }
+                }
+            });
+
+            assert.strictEqual(s, 'a (!) b');
         });
 
         it('Should expand block macro', function () {
             var m = new Macroed();
-            m.setProcessor({
-                name: 'm',
-                process: function (params) {
+            m.registerMacro({
+                name: 's',
+                generate: function (params) {
 
                     return params.x + '*(%s)';
                 }
             });
             var s = m.expandNode({
                 type: 'macro',
-                name: 'm',
-                source: '||m(x=42)',
+                name: 's',
+                source: '||s(x=42)',
                 params: {
                     x: '42'
                 },
                 items: [
                     {
-                        type: 'inline',
+                        type: 'proc',
                         name: 'default',
                         source: 'a',
                         content: 'a',
@@ -217,23 +253,21 @@ describe('Macroed', function () {
             assert.strictEqual(s, '42*(a)');
         });
 
-        it('Should expand processor', function () {
+        it('Should use processor', function () {
             var m = new Macroed();
-            m.setProcessor({
+            m.registerProc({
                 name: 'json',
-                process: function (params, content) {
+                process: function (content) {
                     content = JSON.parse(content);
 
-                    return JSON.stringify(content, null, +params.indent);
+                    return JSON.stringify(content, null, 4);
                 }
             });
             var s = m.expandNode({
                 type: 'proc',
                 name: 'json',
-                source: '||json(indent=4):',
-                params: {
-                    indent: '4'
-                },
+                inline: {},
+                source: '{"a":42}',
                 content: '{"a":42}'
             });
 
@@ -245,16 +279,24 @@ describe('Macroed', function () {
     describe('Macroed.prototype.expandString', function () {
         it('Should expand string', function () {
             var m = new Macroed();
-            m.setProcessor({
+            m.registerProc({
                 name: 'json',
-                process: function (params, content) {
+                process: function (content) {
                     content = JSON.parse(content);
 
-                    return JSON.stringify(content, null, +params.indent);
+                    return JSON.stringify(content, null, 4);
                 }
             });
+            m.registerMacro({
+                name: 'm',
+                generate: function () {
+
+                    return '%s';
+                }
+            });
+
             var s = m.expandString([
-                '||json(indent=4):',
+                '||json:m()',
                 '   {"a": 42}'
             ].join(m.parser.params.EOL));
 

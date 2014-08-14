@@ -5,7 +5,7 @@ var Macroed = require('./core/macroed');
 var marked = require('marked');
 var macroed = new Macroed();
 
-macroed.setProcessor({
+macroed.registerProc({
     name: 'default',
     params: {
         gfm: true,
@@ -15,7 +15,7 @@ macroed.setProcessor({
         smartLists: true,
         smartypants: true
     },
-    process: function (params, content) {
+    process: function (content) {
 
         return marked(content, this.params);
     }

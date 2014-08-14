@@ -4,8 +4,16 @@ var R_EMPTY = /^\s*$/;
 var R_ESCAPED = /\\([\s\S])/g;
 var R_TRIMMER = /^ */;
 
-var R_BLOCK_MACRO = /^ *\|\|([\w-]+) *\(([^()]*)\)(?: *(:))? *$/;
-var R_INLINE_MACRO = /{{([\w-]+) *\(([^()]*)\)(?: *(:)([^{}]*))?}}/g;
+//  ||proc:macro()
+//      subject
+//  ||macro()
+//      subject
+//                       1              2           3
+var R_BLOCK_MACRO = /^ *\|\|(?:([\w-]+) *: *)?([\w-]+) *\(([^()]*)\) *$/;
+
+//  {{macro()}}
+//  {{macro():content}}
+var R_INLINE_MACRO = /{{([\w-]+) *\(([^()]*)\)(?: *:([^{}]*))?}}/g;
 
 var R_PARAM = /^ *([a-z]\w*)(?: *= *(?:"((?:\\[\s\S]|[^"])*)"|([^" ]+)))? *$/i;
 
@@ -42,74 +50,44 @@ var Parser = inherit(/** @lends Parser.prototype */ {
     /**
      * @public
      * @memberOf {Parser}
+     * @method
      *
-     * @param {String} s
+     * @param {String} source
      *
      * @returns {Object}
      * */
-    markInline: function (s) {
-        var i;
-        var pos = 0;
-        var m;
-        var ph;
-        var result = {
-            name: 'default',
-            type: 'inline',
-            source: s,
-            content: '',
-            inline: {}
-        };
-        var params;
+    markOut: function (source) {
+        var inline = {};
+        var self = this;
 
-        R_INLINE_MACRO.lastIndex = 0;
+        function replacer (source, name, params, content) {
+            var holder;
 
-        /*eslint no-cond-assign: 0*/
-        while ( m = R_INLINE_MACRO.exec(s) ) {
-            i = m.index;
-
-            if ( pos !== i ) {
-                result.content += s.substring(pos, i);
-            }
-
-            pos = i + m[0].length;
-            params = this.parseParams(m[2]);
+            params = self.parseParams(params);
 
             if ( _.isNull(params) ) {
-                result.content += m[0];
 
-                continue;
+                return source;
             }
 
-            ph = this.__genPlaceholder();
+            holder = self._genPlaceholder();
 
-            if ( m[3] ) {
-                result.inline[ph] = {
-                    type: 'proc',
-                    inline: true,
-                    source: m[0],
-                    name: m[1],
-                    params: params,
-                    content: m[4]
-                };
+            inline[holder] = {
+                source: source,
+                name: name,
+                params: params,
+                content: content || '',
+                type: 'macro'
+            };
 
-            } else {
-                result.inline[ph] = {
-                    type: 'macro',
-                    inline: true,
-                    source: m[0],
-                    name: m[1],
-                    params: params
-                };
-            }
-
-            result.content += ph;
+            return holder;
         }
 
-        if ( pos !== s.length ) {
-            result.content += s.substring(pos);
-        }
-
-        return result;
+        return {
+            source: source,
+            content: source.replace(R_INLINE_MACRO, replacer),
+            inline: inline
+        };
     },
 
     /**
@@ -132,7 +110,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
         var lines = this.__splitByLines(s);
         var m;
         var prevIndent = 0;
-        var proc = null;
+        var proc = 'default';
         var params;
         var result = items;
         var self = this;
@@ -144,25 +122,37 @@ var Parser = inherit(/** @lends Parser.prototype */ {
                 indent: indent,
                 //  current block items
                 items: items,
-                // parent block indent
-                prevIndent: prevIndent
+                //  parent block indent
+                prevIndent: prevIndent,
+                //  current processor
+                proc: proc
             });
         }
 
         function popStack () {
             items = stack.pop();
+
             indent = items.indent;
             prevIndent = items.prevIndent;
+            proc = items.proc;
             items = items.items;
-            proc = null;
         }
 
         function pushLines () {
 
-            if ( '' !== inline ) {
-                items.push(self.markInline(inline));
-                inline = '';
+            if ( '' === inline ) {
+
+                return;
             }
+
+            inline = self.markOut(inline);
+
+            items.push(_.extend({
+                type: 'proc',
+                name: proc
+            }, inline));
+
+            inline = '';
         }
 
         function closeBlock () {
@@ -231,19 +221,6 @@ var Parser = inherit(/** @lends Parser.prototype */ {
                 closeBlock();
             }
 
-            if ( proc ) {
-                line = line.substring(indent);
-
-                if ( '' === proc.content ) {
-                    proc.content = line;
-
-                } else {
-                    proc.content += this.params.EOL + line;
-                }
-
-                continue;
-            }
-
             //  try to recognize block
             m = line.match(R_BLOCK_MACRO);
 
@@ -254,40 +231,28 @@ var Parser = inherit(/** @lends Parser.prototype */ {
                 continue;
             }
 
-            params = this.parseParams(m[2]);
+            //  ||(proc:)?macro()
+            params = this.parseParams(m[3]);
 
-            //  if the params are bad, then it is like just line!
             if ( _.isNull(params) ) {
                 addLine();
 
                 continue;
             }
 
-            //  block-macro
             openBlock();
 
-            //  push node to ast
-            if ( m[3] ) {
-                proc = {
-                    type: 'proc',
-                    source: m[0].substring(currIndent),
-                    name: m[1],
-                    params: params,
-                    content: ''
-                };
-
-                items.push(proc);
-                items = [];
-
-            } else {
-                items.push({
-                    type: 'macro',
-                    source: m[0].substring(currIndent),
-                    name: m[1],
-                    params: params,
-                    items: items = []
-                });
+            if ( m[1] ) {
+                proc = m[1];
             }
+
+            items.push({
+                type: 'macro',
+                source: m[0].substring(currIndent),
+                name: m[2],
+                params: params,
+                items: items = []
+            });
 
             prevIndent = currIndent;
             indent = -1;
@@ -437,6 +402,18 @@ var Parser = inherit(/** @lends Parser.prototype */ {
     },
 
     /**
+     * @protected
+     * @memberOf {Parser}
+     * @method
+     *
+     * @returns {String}
+     * */
+    _genPlaceholder: function () {
+
+        return uniqueId();
+    },
+
+    /**
      * @private
      * @memberOf {Parser}
      * @method
@@ -452,18 +429,6 @@ var Parser = inherit(/** @lends Parser.prototype */ {
         }
 
         return content + this.params.EOL + line;
-    },
-
-    /**
-     * @private
-     * @memberOf {Parser}
-     * @method
-     *
-     * @returns {String}
-     * */
-    __genPlaceholder: /* istanbul ignore next */ function () {
-
-        return uniqueId();
     },
 
     /**

@@ -1,5 +1,6 @@
 'use strict';
 
+var Macro = /** @type Macro */ require('./macro');
 var Parser = /** @type Parser */ require('./parser');
 var Processor = /** @type Processor */ require('./processor');
 
@@ -46,7 +47,15 @@ var Macroed = inherit(/** @lends Macroed.prototype */ {
          * */
         this.__procs = {};
 
-        this.setProcessor({
+        /**
+         * @private
+         * @memberOf {Macroed}
+         * @property
+         * @type {Object}
+         * */
+        this.__macro = {};
+
+        this.registerProc({
             name: 'default'
         });
     },
@@ -61,52 +70,51 @@ var Macroed = inherit(/** @lends Macroed.prototype */ {
     expandNode: function (node) {
         /*eslint complexity: 0*/
         var name = node.name;
-        var proc = this.__procs[name];
+        var subj;
         var result = node.source;
 
-        if ( 'inline' === node.type ) {
-            //  TODO: what runtime params we should pass to default processor?
-            result = proc.process({}, node.content);
+        if ( 'macro' === node.type ) {
+            subj = this.__macro[name];
 
-            return _.reduce(node.inline, this.__inline, result, this);
-        }
+            if ( subj instanceof Macro ) {
+                subj = subj.generate(node.params);
 
-        if ( 'proc' === node.type ) {
+                if ( !/%s/.test(subj) ) {
 
-            if ( proc instanceof Processor ) {
+                    return subj;
+                }
 
-                return proc.process(node.params, node.content);
+                if ( _.isArray(node.items) ) {
+                    result = this.expandNodeSet(node.items);
+
+                } else {
+                    result = node.content;
+                }
+
+                return subj.replace(/%s/g, result);
             }
 
-            if ( node.inline ) {
+            //  unknown macro
 
-                return result;
-            }
+            if ( _.isArray(node.items) && node.items.length ) {
 
-            //  save proc content
-            return result + this.parser.params.EOL + node.content;
-        }
-
-        //  macro
-        if ( proc instanceof Processor ) {
-            result = proc.process(node.params);
-
-            if ( _.isArray(node.items) ) {
-
-                return result.replace(/%s/g, this.expandNodeSet(node.items));
+                return result + this.parser.params.EOL +
+                    this.expandNodeSet(node.items);
             }
 
             return result;
         }
 
-        //  only block macros has items
-        if ( _.isArray(node.items) && node.items.length ) {
+        //  proc
+        subj = this.__procs[name];
 
-            return result + this.parser.params.EOL +
-                   this.expandNodeSet(node.items);
+        if ( subj instanceof Processor ) {
+            result = subj.process(node.content);
 
+            return _.reduce(node.inline, this.__inline, result, this);
         }
 
+        //  unknown proc
         return result;
     },
 
@@ -147,19 +155,20 @@ var Macroed = inherit(/** @lends Macroed.prototype */ {
      * @memberOf {Macroed}
      * @method
      *
-     * @param {Object} [members]
+     * @param {Function} Parent
+     * @param {Object} members
      *
-     * @returns {Processor}
+     * @returns {Parent}
      * */
-    createProcessor: function (members) {
-        var Proc = inherit(Processor, members);
-        var params = Proc.prototype.params;
+    createComponent: function (Parent, members) {
+        var Component = inherit(Parent, members);
+        var params = Component.prototype.params;
 
-        delete Proc.prototype.params;
+        delete Component.prototype.params;
 
         params = _.extend({}, this.params, params);
 
-        return new Proc(params);
+        return new Component(params);
     },
 
     /**
@@ -171,9 +180,25 @@ var Macroed = inherit(/** @lends Macroed.prototype */ {
      *
      * @returns {Macroed}
      * */
-    setProcessor: function (members) {
+    registerProc: function (members) {
         members = Object(members);
-        this.__procs[members.name] = this.createProcessor(members);
+        this.__procs[members.name] = this.createComponent(Processor, members);
+
+        return this;
+    },
+
+    /**
+     * @public
+     * @memberOf {Macroed}
+     * @method
+     *
+     * @param {Object} [members]
+     *
+     * @returns {Macroed}
+     * */
+    registerMacro: function (members) {
+        members = Object(members);
+        this.__macro[members.name] = this.createComponent(Macro, members);
 
         return this;
     },
@@ -191,7 +216,7 @@ var Macroed = inherit(/** @lends Macroed.prototype */ {
      * */
     __inline: function (result, node, key) {
 
-        return result.replace(key, this.expandNode(node));
+        return result.replace(new RegExp(key, 'g'), this.expandNode(node));
     }
 
 });
