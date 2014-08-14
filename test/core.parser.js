@@ -88,7 +88,7 @@ describe('Parser', function () {
                 ],
                 [
                     {
-                        type: 'inline',
+                        type: 'proc',
                         name: 'default',
                         source: 'hello',
                         inline: {},
@@ -103,7 +103,7 @@ describe('Parser', function () {
                 ],
                 [
                     {
-                        type: 'inline',
+                        type: 'proc',
                         name: 'default',
                         source: [
                             'hello',
@@ -125,7 +125,7 @@ describe('Parser', function () {
                 ],
                 [
                     {
-                        type: 'inline',
+                        type: 'proc',
                         name: 'default',
                         source: [
                             'a',
@@ -149,7 +149,7 @@ describe('Parser', function () {
                 ],
                 [
                     {
-                        type: 'inline',
+                        type: 'proc',
                         name: 'default',
                         source: 'x',
                         inline: {},
@@ -157,13 +157,12 @@ describe('Parser', function () {
                     },
                     {
                         type: 'macro',
-                        source: '||m()',
                         name: 'm',
                         params: {},
-
+                        source: '||m()',
                         items: [
                             {
-                                type: 'inline',
+                                type: 'proc',
                                 name: 'default',
                                 source: 'test',
                                 inline: {},
@@ -182,7 +181,7 @@ describe('Parser', function () {
                 ],
                 [
                     {
-                        type: 'inline',
+                        type: 'proc',
                         name: 'default',
                         source: 'x',
                         inline: {},
@@ -195,24 +194,23 @@ describe('Parser', function () {
                         params: {},
                         items: [
                             {
-                                type: 'inline',
+                                type: 'proc',
                                 name: 'default',
                                 source: 'test',
-                                inline:{},
+                                inline: {},
                                 content: 'test'
                             }
                         ]
                     },
                     {
-                        type: 'inline',
+                        type: 'proc',
                         name: 'default',
                         source: '   xxx',
-                        inline:{},
+                        inline: {},
                         content: '   xxx'
                     }
                 ]
             ],
-
             [
                 [
                     'x',
@@ -223,10 +221,10 @@ describe('Parser', function () {
                 ],
                 [
                     {
-                        type: 'inline',
+                        type: 'proc',
                         name: 'default',
                         source: 'x',
-                        inline:{},
+                        inline: {},
                         content: 'x'
                     },
                     {
@@ -234,25 +232,24 @@ describe('Parser', function () {
                         source: '||m()',
                         name: 'm',
                         params: {},
-
                         items: [
                             {
-                                type: 'inline',
+                                type: 'proc',
                                 name: 'default',
                                 source: 'test',
-                                inline:{},
+                                inline: {},
                                 content: 'test'
                             }
                         ]
                     },
                     {
-                        type: 'inline',
+                        type: 'proc',
                         name: 'default',
                         source: [
                             '   xxx',
                             '   xxx'
                         ].join(EOL),
-                        inline:{},
+                        inline: {},
                         content: [
                             '   xxx',
                             '   xxx'
@@ -273,17 +270,16 @@ describe('Parser', function () {
                         source: '||m()',
                         name: 'm',
                         params: {},
-
                         items: [
                             {
-                                type: 'inline',
+                                type: 'proc',
                                 name: 'default',
                                 source: [
                                     'test',
                                     '    xxx',
                                     'xxx'
                                 ].join(EOL),
-                                inline:{},
+                                inline: {},
                                 content: [
                                     'test',
                                     '    xxx',
@@ -307,29 +303,27 @@ describe('Parser', function () {
                         source: '||m()',
                         name: 'm',
                         params: {},
-
                         items: [
                             {
                                 type: 'macro',
                                 source: '||x()',
                                 name: 'x',
                                 params: {},
-
                                 items: [
                                     {
-                                        type: 'inline',
+                                        type: 'proc',
                                         name: 'default',
                                         source: '42',
-                                        inline:{},
+                                        inline: {},
                                         content: '42'
                                     }
                                 ]
                             },
                             {
-                                type: 'inline',
+                                type: 'proc',
                                 name: 'default',
                                 source: '777',
-                                inline:{},
+                                inline: {},
                                 content: '777'
                             }
                         ]
@@ -366,10 +360,10 @@ describe('Parser', function () {
                                 ]
                             },
                             {
-                                type: 'inline',
+                                type: 'proc',
                                 name: 'default',
                                 source: 'a',
-                                inline:{},
+                                inline: {},
                                 content: 'a'
                             }
                         ]
@@ -379,57 +373,114 @@ describe('Parser', function () {
             //  processors
             [
                 [
-                    '||m():'
+                    '||proc:m()'
                 ],
                 [
                     {
-                        type: 'proc',
-                        source: '||m():',
+                        type: 'macro',
+                        source: '||proc:m()',
                         name: 'm',
                         params: {},
-                        content: ''
+                        items: []
                     }
                 ]
             ],
             [
                 [
-                    '||m(a=5):',
+                    '||proc:m()',
+                    '   text'
+                ],
+                [
+                    {
+                        type: 'macro',
+                        source: '||proc:m()',
+                        name: 'm',
+                        params: {},
+                        items: [
+                            {
+                                type: 'proc',
+                                name: 'proc',
+                                content: 'text',
+                                source: 'text',
+                                inline: {}
+                            }
+                        ]
+                    }
+                ]
+            ],
+            [
+                [
+                    '||proc:m()',
+                    '   text1',
+                    '   ||default:x()',
+                    '       text2',
+                    '   text3',
+                    'text4'
+                ],
+                [
+                    {
+                        type: 'macro',
+                        source: '||proc:m()',
+                        name: 'm',
+                        params: {},
+                        items: [
+                            {
+                                type: 'proc',
+                                name: 'proc',
+                                content: 'text1',
+                                source: 'text1',
+                                inline: {}
+                            },
+                            {
+                                type: 'macro',
+                                source: '||default:x()',
+                                name: 'x',
+                                params: {},
+                                items: [
+                                    {
+                                        type: 'proc',
+                                        name: 'default',
+                                        source: 'text2',
+                                        content: 'text2',
+                                        inline: {}
+                                    }
+                                ]
+                            },
+                            {
+                                type: 'proc',
+                                name: 'proc',
+                                content: 'text3',
+                                source: 'text3',
+                                inline: {}
+                            }
+                        ]
+                    },
+                    {
+                        type: 'proc',
+                        name: 'default',
+                        source: 'text4',
+                        content: 'text4',
+                        inline: {}
+                    }
+                ]
+            ],
+            [
+                [
+                    '||proc:m(a=5)',
                     ''
                 ],
                 [
                     {
-                        type: 'proc',
+                        type: 'macro',
+                        source: '||proc:m(a=5)',
                         name: 'm',
-                        source: '||m(a=5):',
                         params: {
                             a: '5'
                         },
-                        content: ''
+                        items: []
                     }
                 ]
             ],
-            [
-                [
-                    '||x():',
-                    '   ||m()',
-                    '       ||m()'
-                ],
-                [
-                    {
-                        type: 'proc',
-                        name: 'x',
-                        source: '||x():',
-                        params: {},
-                        content: [
-                            '||m()',
-                            '    ||m()'
-                        ].join(EOL)
-                    }
-                ]
-            ]
-        ];
-
-        var errors = [
             [
                 [
                     '||m()',
@@ -445,7 +496,7 @@ describe('Parser', function () {
                         params: {},
                         items: [
                             {
-                                type: 'inline',
+                                type: 'proc',
                                 name: 'default',
                                 source: 'test',
                                 content: 'test',
@@ -454,7 +505,7 @@ describe('Parser', function () {
                         ]
                     },
                     {
-                        type: 'inline',
+                        type: 'proc',
                         name: 'default',
                         source: [
                             '  bad indent',
@@ -468,6 +519,7 @@ describe('Parser', function () {
                     }
                 ]
             ],
+
             [
                 [
                     '||m()',
@@ -491,7 +543,7 @@ describe('Parser', function () {
                                 params: {},
                                 items: [
                                     {
-                                        type: 'inline',
+                                        type: 'proc',
                                         name: 'default',
                                         inline: {},
                                         source: [
@@ -506,7 +558,7 @@ describe('Parser', function () {
                                 ]
                             },
                             {
-                                type: 'inline',
+                                type: 'proc',
                                 name: 'default',
                                 inline: {},
                                 source: [
@@ -528,7 +580,7 @@ describe('Parser', function () {
                 ],
                 [
                     {
-                        type: 'inline',
+                        type: 'proc',
                         name: 'default',
                         inline: {},
                         source: '||m(1=5)',
@@ -550,7 +602,7 @@ describe('Parser', function () {
                         params: {},
                         items: [
                             {
-                                type: 'inline',
+                                type: 'proc',
                                 name: 'default',
                                 inline: {},
                                 source: [
@@ -578,22 +630,14 @@ describe('Parser', function () {
                 });
         });
 
-        _.forEach(errors, function (f) {
-            it('Should close block ', function () {
-                var p = new Parser();
-                assert.deepEqual(p.parse(f[0].join(EOL)), f[1]);
-            });
-        });
     });
 
-    describe('Parser.prototype.markInline', function () {
+    describe('Parser.prototype.markOut', function () {
 
         var fixtures = [
             [
                 '',
                 {
-                    type: 'inline',
-                    name: 'default',
                     source: '',
                     content: '',
                     inline: {}
@@ -602,8 +646,6 @@ describe('Parser', function () {
             [
                 'asd',
                 {
-                    type: 'inline',
-                    name: 'default',
                     source: 'asd',
                     content: 'asd',
                     inline: {}
@@ -612,17 +654,15 @@ describe('Parser', function () {
             [
                 '{{pic()}}',
                 {
-                    type: 'inline',
-                    name: 'default',
                     source: '{{pic()}}',
                     content: '0',
                     inline: {
                         0: {
                             type: 'macro',
-                            inline: true,
                             source: '{{pic()}}',
                             params: {},
-                            name: 'pic'
+                            name: 'pic',
+                            content: ''
                         }
                     }
                 }
@@ -630,17 +670,15 @@ describe('Parser', function () {
             [
                 'a{{pic()}}b',
                 {
-                    type: 'inline',
-                    name: 'default',
                     source: 'a{{pic()}}b',
                     content: 'a0b',
                     inline: {
                         0: {
                             type: 'macro',
-                            inline: true,
                             source: '{{pic()}}',
                             params: {},
-                            name: 'pic'
+                            name: 'pic',
+                            content: ''
                         }
                     }
                 }
@@ -648,24 +686,22 @@ describe('Parser', function () {
             [
                 'a{{pic()}}b{{pic()}}',
                 {
-                    type: 'inline',
-                    name: 'default',
                     content: 'a0b1',
                     source: 'a{{pic()}}b{{pic()}}',
                     inline: {
                         0: {
                             type: 'macro',
-                            inline: true,
                             source: '{{pic()}}',
                             params: {},
-                            name: 'pic'
+                            name: 'pic',
+                            content: ''
                         },
                         1: {
                             type: 'macro',
-                            inline: true,
                             source: '{{pic()}}',
                             params: {},
-                            name: 'pic'
+                            name: 'pic',
+                            content: ''
                         }
                     }
                 }
@@ -673,45 +709,40 @@ describe('Parser', function () {
             [
                 '{{pic()}}{{pic()}}',
                 {
-                    type: 'inline',
-                    name: 'default',
                     source: '{{pic()}}{{pic()}}',
                     content: '01',
                     inline: {
                         0: {
                             type: 'macro',
-                            inline: true,
                             source: '{{pic()}}',
                             params: {},
-                            name: 'pic'
+                            name: 'pic',
+                            content: ''
                         },
                         1: {
                             type: 'macro',
-                            inline: true,
                             source: '{{pic()}}',
                             params: {},
-                            name: 'pic'
+                            name: 'pic',
+                            content: ''
                         }
                     }
                 }
             ],
             [
-                'inline {{proc(theme=bold): content}}',
+                'inline {{proc(theme=bold):content}}',
                 {
-                    type: 'inline',
-                    name: 'default',
-                    source: 'inline {{proc(theme=bold): content}}',
+                    source: 'inline {{proc(theme=bold):content}}',
                     content: 'inline 0',
                     inline: {
                         0: {
-                            type: 'proc',
-                            inline: true,
-                            source: '{{proc(theme=bold): content}}',
+                            type: 'macro',
+                            source: '{{proc(theme=bold):content}}',
                             params: {
                                 theme: 'bold'
                             },
                             name: 'proc',
-                            content: ' content'
+                            content: 'content'
                         }
                     }
                 }
@@ -720,8 +751,6 @@ describe('Parser', function () {
             [
                 'inline {{proc(1=5)}} here',
                 {
-                    type: 'inline',
-                    name: 'default',
                     source: 'inline {{proc(1=5)}} here',
                     content: 'inline {{proc(1=5)}} here',
                     inline: {}
@@ -730,13 +759,15 @@ describe('Parser', function () {
         ];
 
         _.forEach(fixtures, function (f) {
-            it('Should parse "' + f[0] + '" to expected ast', function () {
+            var json = JSON.stringify(f[1], null, 4);
+
+            it('Should mark "' + f[0] + '" out like\n' + json, function () {
                 var P = inherit(Parser, {
                     __constructor: function (params) {
                         this.__base(params);
                         this.i = -1;
                     },
-                    __genPlaceholder: function () {
+                    _genPlaceholder: function () {
                         this.i += 1;
 
                         return this.i;
@@ -744,7 +775,7 @@ describe('Parser', function () {
                 });
 
                 var p = new P();
-                var actual = p.markInline(f[0]);
+                var actual = p.markOut(f[0]);
 
                 assert.deepEqual(actual, f[1]);
             });

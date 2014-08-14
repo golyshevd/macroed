@@ -1,43 +1,25 @@
 'use strict';
 
+var Component = /** @class Component */ require('./component');
+
 var inherit = require('inherit');
 
 /**
  * @class Processor
+ * @extends Component
  * */
-var Processor = inherit(/** @lends Processor.prototype */ {
-
-    /**
-     * @private
-     * @memberOf {Processor}
-     * @method
-     *
-     * @constructs
-     *
-     * @param {Object} [params]
-     * */
-    __constructor: function (params) {
-
-        /**
-         * @public
-         * @memberOf {Processor}
-         * @property
-         * @type {Object}
-         * */
-        this.params = params;
-    },
+var Processor = inherit(Component, /** @lends Processor.prototype */ {
 
     /**
      * @public
      * @memberOf {Processor}
      * @method
      *
-     * @param {Object} params
      * @param {String} [content]
      *
      * @returns {String}
      * */
-    process: function (params, content) {
+    process: function (content) {
 
         return content;
     }
