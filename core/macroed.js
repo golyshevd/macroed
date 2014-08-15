@@ -210,7 +210,8 @@ var Macroed = inherit(/** @lends Macroed.prototype */ {
             return result;
         }
 
-        macro = this.__macro[node.name].generate(node.params);
+        macro = this.__macro[node.name].generate(node.params,
+            this.__procs[node.context]);
 
         if ( !/%s/.test(macro) ) {
 
