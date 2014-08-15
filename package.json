@@ -17,7 +17,7 @@
         "glob": "4.0.5",
         "gulp": "3.8.7",
         "gulp-mocha": "0.5.2",
-        "gulp-istanbul": "0.2.1",
+        "gulp-istanbul": "0.2.2",
         "gulp-eslint": "0.1.8",
         "gulp-util": "3.0.0",
         "through2": "0.5.1",
