@@ -16,10 +16,11 @@ var Macro = inherit(Component, /** @lends Macro.prototype */ {
      * @method
      *
      * @param {Object} params
+     * @param {Context} context
      *
      * @returns {String}
      * */
-    generate: /*istanbul ignore next */ function (params) {
+    generate: /*istanbul ignore next */ function (params, context) {
         /*eslint no-unused-vars: 0*/
 
         return '';

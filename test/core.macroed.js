@@ -8,6 +8,7 @@ describe('Macroed', function () {
     /*eslint max-nested-callbacks: 0*/
     var Macroed = require('../core/macroed');
     var Component = require('../core/component');
+    var Context = require('../core/context');
 
     describe('Macroed.prototype.createComponent', function () {
 
@@ -310,5 +311,20 @@ describe('Macroed', function () {
 
             assert.strictEqual(s, JSON.stringify({a: 42}, null, 4));
         });
+    });
+
+    it('Should pass context into Macro.prototype.generate', function () {
+        var m = new Macroed();
+        var spy = [];
+        m.registerMacro({
+            name: 'pic',
+            generate: function (params, context) {
+                assert.instanceOf(context, Context);
+                spy.push(1);
+            }
+        });
+
+        m.expandString('{{pic()}}');
+        assert.deepEqual(spy, [1]);
     });
 });
