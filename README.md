@@ -49,7 +49,7 @@ macroed.expandString(string); // -> <div class="wrapper wrapper_align_right">I a
 
 //  support processors
 macroed.registerProc({
-    name: 'docbook',
+    context: 'docbook',
     params: {
         stylesheet: './xsl/common/docbook.xsl'
     },
@@ -83,7 +83,7 @@ macroed.expandString(string);
 var marked = require('marked');
 
 macroed.registerProc({
-    name: 'default',
+    context: 'default',
     params: {
         smartypants: true
     },

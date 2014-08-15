@@ -56,7 +56,7 @@ var Macroed = inherit(/** @lends Macroed.prototype */ {
         this.__macro = {};
 
         this.registerProc({
-            name: 'default'
+            context: 'default'
         });
     },
 
@@ -137,12 +137,11 @@ var Macroed = inherit(/** @lends Macroed.prototype */ {
      * @memberOf {Macroed}
      * @method
      *
-     * @param {Object} [members]
+     * @param {Object} members
      *
      * @returns {Macroed}
      * */
     registerMacro: function (members) {
-        members = Object(members);
         this.__macro[members.name] = this.createComponent(Macro, members);
 
         return this;
@@ -153,13 +152,13 @@ var Macroed = inherit(/** @lends Macroed.prototype */ {
      * @memberOf {Macroed}
      * @method
      *
-     * @param {Object} [members]
+     * @param {Object} members
      *
      * @returns {Macroed}
      * */
     registerProc: function (members) {
-        members = Object(members);
-        this.__procs[members.name] = this.createComponent(Processor, members);
+        this.__procs[members.context] = this.
+            createComponent(Processor, members);
 
         return this;
     },
