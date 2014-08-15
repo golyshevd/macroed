@@ -5,7 +5,7 @@ var assert = require('chai').assert;
 
 describe('macroed', function () {
     var Macroed = require('../core/macroed');
-    var macroed = require('../macroed');
+    var macroed = require('../lib/macroed');
 
     macroed.registerMacro({
         name: 'host',
