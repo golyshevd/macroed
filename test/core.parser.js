@@ -84,6 +84,20 @@ describe('Parser', function () {
         var fixtures = [
             [
                 [
+                    ''
+                ],
+                [
+                    {
+                        type: 'context',
+                        name: 'default',
+                        source: '',
+                        inline: {},
+                        content: ''
+                    }
+                ]
+            ],
+            [
+                [
                     'hello'
                 ],
                 [
@@ -491,7 +505,15 @@ describe('Parser', function () {
                         params: {
                             a: '5'
                         },
-                        items: []
+                        items: [
+                            {
+                                content: '',
+                                inline: {},
+                                name: 'proc',
+                                source: '',
+                                type: 'context'
+                            }
+                        ]
                     }
                 ]
             ],

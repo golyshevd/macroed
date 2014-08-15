@@ -94,7 +94,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
     parse: function (s) {
         var currIndent;
         var i;
-        var inline = '';
+        var inline = null;
         var items = [];
         var indent = 0;
         var l;
@@ -132,7 +132,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
 
         function pushLines () {
 
-            if ( '' === inline ) {
+            if ( _.isNull(inline) ) {
 
                 return;
             }
@@ -144,7 +144,7 @@ var Parser = inherit(/** @lends Parser.prototype */ {
                 name: context
             }, inline));
 
-            inline = '';
+            inline = null;
         }
 
         function closeBlock () {
@@ -411,14 +411,14 @@ var Parser = inherit(/** @lends Parser.prototype */ {
      * @memberOf {Parser}
      * @method
      *
-     * @param {String} content
+     * @param {String|null} content
      * @param {String} line
      *
      * @returns {String}
      * */
     __addLine: function (content, line) {
 
-        if ( '' === content ) {
+        if ( _.isNull(content) ) {
 
             return line;
         }
