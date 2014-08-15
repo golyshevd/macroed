@@ -5,14 +5,14 @@ var Component = /** @class Component */ require('./component');
 var inherit = require('inherit');
 
 /**
- * @class Processor
+ * @class Context
  * @extends Component
  * */
-var Processor = inherit(Component, /** @lends Processor.prototype */ {
+var Context = inherit(Component, /** @lends Context.prototype */ {
 
     /**
      * @public
-     * @memberOf {Processor}
+     * @memberOf {Context}
      * @method
      *
      * @param {String} [content]
@@ -26,4 +26,4 @@ var Processor = inherit(Component, /** @lends Processor.prototype */ {
 
 });
 
-module.exports = Processor;
+module.exports = Context;
