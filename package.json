@@ -29,7 +29,7 @@
         "chai": "1.9.1"
     },
     "license": "MIT",
-    "main": "macroed",
+    "main": "lib/macroed",
     "name": "macroed",
     "repository": {
         "type": "git",
