@@ -2,7 +2,7 @@
 
 var Macro = /** @type Macro */ require('./macro');
 var Parser = /** @type Parser */ require('./parser');
-var Processor = /** @type Processor */ require('./processor');
+var Context = /** @type Context */ require('./context');
 
 var _ = require('lodash-node');
 var inherit = require('inherit');
@@ -55,8 +55,8 @@ var Macroed = inherit(/** @lends Macroed.prototype */ {
          * */
         this.__macro = {};
 
-        this.registerProc({
-            context: 'default'
+        this.registerContext({
+            name: 'default'
         });
     },
 
@@ -156,9 +156,9 @@ var Macroed = inherit(/** @lends Macroed.prototype */ {
      *
      * @returns {Macroed}
      * */
-    registerProc: function (members) {
-        this.__procs[members.context] = this.
-            createComponent(Processor, members);
+    registerContext: function (members) {
+        this.__procs[members.name] = this.
+            createComponent(Context, members);
 
         return this;
     },
@@ -176,7 +176,7 @@ var Macroed = inherit(/** @lends Macroed.prototype */ {
         var result = node.source;
         var proc = this.__procs[node.name];
 
-        if ( proc instanceof Processor ) {
+        if ( proc instanceof Context ) {
             result = proc.process(node.content);
 
             return _.reduce(node.inline, this.__inline, result, this);

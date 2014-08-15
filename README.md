@@ -48,8 +48,8 @@ var string = [
 macroed.expandString(string); // -> <div class="wrapper wrapper_align_right">I am at right!</div>
 
 //  support processors
-macroed.registerProc({
-    context: 'docbook',
+macroed.registerContext({
+    name: 'docbook',
     params: {
         stylesheet: './xsl/common/docbook.xsl'
     },
@@ -82,8 +82,8 @@ macroed.expandString(string);
 //  default processor
 var marked = require('marked');
 
-macroed.registerProc({
-    context: 'default',
+macroed.registerContext({
+    name: 'default',
     params: {
         smartypants: true
     },
