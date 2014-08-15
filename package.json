@@ -1,8 +1,5 @@
 {
-    "author": {
-        "name": "Golyshev Dmitrii",
-        "email": "golyshev.dmitry@yandex.ru"
-    },
+    "author": "Golyshev Dmitrii <golyshev.dmitry@yandex.ru>",
     "bugs": {
         "url": "https://github.com/golyshevd/macroed/issues"
     },
